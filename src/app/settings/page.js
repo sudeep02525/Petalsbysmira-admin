@@ -127,12 +127,12 @@ export default function SettingsPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         
         {/* Profile Settings */}
-        <div className="bg-white dark:bg-[#111111] rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 overflow-hidden">
-          <div className="p-6 border-b border-gray-100 dark:border-gray-800 flex items-center gap-3">
-            <div className="p-2 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-lg">
+        <div className="bg-white dark:bg-[#0a0a0a] rounded-sm shadow-sm border border-gray-200 dark:border-gray-800 overflow-hidden">
+          <div className="p-6 border-b border-gray-200 dark:border-gray-800 flex items-center gap-3">
+            <div className="p-2 bg-gray-100 dark:bg-[#1a1a1a] text-black dark:text-white rounded-sm border border-gray-200 dark:border-gray-800">
               <User className="w-5 h-5" />
             </div>
-            <h2 className="text-lg font-semibold dark:text-white">Profile Information</h2>
+            <h2 className="text-lg font-bold font-serif dark:text-white">Profile Information</h2>
           </div>
           
           <form onSubmit={handleUpdateProfile} className="p-6 space-y-4">
@@ -143,7 +143,7 @@ export default function SettingsPage() {
                 required
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 rounded-lg text-sm focus:ring-[#D4AF37] focus:border-[#D4AF37] dark:text-white"
+                className="w-full px-4 py-2 border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] rounded-sm text-sm focus:ring-1 focus:ring-black dark:focus:ring-white focus:border-black dark:focus:border-white dark:text-white transition-all shadow-sm"
                 placeholder="Admin Name"
               />
             </div>
@@ -156,7 +156,7 @@ export default function SettingsPage() {
                 disabled
                 readOnly
                 value={email}
-                className="w-full px-4 py-2 border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#1a1a1a] text-gray-500 dark:text-gray-500 rounded-lg text-sm cursor-not-allowed"
+                className="w-full px-4 py-2 border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#111] text-gray-500 dark:text-gray-500 rounded-sm text-sm cursor-not-allowed"
                 placeholder="admin@example.com"
               />
               <p className="text-xs text-gray-400 mt-1">Email address cannot be changed.</p>
@@ -166,7 +166,7 @@ export default function SettingsPage() {
               <button
                 type="submit"
                 disabled={isUpdatingProfile}
-                className="w-full flex justify-center items-center gap-2 bg-black dark:bg-white text-white dark:text-black py-2.5 rounded-lg text-sm font-medium hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors disabled:opacity-70"
+                className="w-full flex justify-center items-center gap-2 bg-black dark:bg-white text-white dark:text-black py-2.5 rounded-sm text-sm font-bold uppercase tracking-widest hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors disabled:opacity-70 shadow-sm"
               >
                 {isUpdatingProfile ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                 {isUpdatingProfile ? "Saving..." : "Save Changes"}
@@ -176,13 +176,13 @@ export default function SettingsPage() {
         </div>
 
         {/* Password Settings */}
-        <div className="bg-white dark:bg-[#111111] rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 overflow-hidden">
-          <div className="p-6 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between gap-3">
+        <div className="bg-white dark:bg-[#0a0a0a] rounded-sm shadow-sm border border-gray-200 dark:border-gray-800 overflow-hidden">
+          <div className="p-6 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between gap-3">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 rounded-lg">
+              <div className="p-2 bg-gray-100 dark:bg-[#1a1a1a] text-black dark:text-white rounded-sm border border-gray-200 dark:border-gray-800">
                 <Key className="w-5 h-5" />
               </div>
-              <h2 className="text-lg font-semibold dark:text-white">
+              <h2 className="text-lg font-bold font-serif dark:text-white">
                 {isOtpMode ? "Reset Password" : "Change Password"}
               </h2>
             </div>
@@ -198,18 +198,18 @@ export default function SettingsPage() {
                     type="button" 
                     onClick={handleSendOtp} 
                     disabled={isSendingOtp || resendTimer > 0}
-                    className="text-xs text-[#D4AF37] hover:underline font-medium disabled:opacity-50 disabled:hover:no-underline"
+                    className="text-xs text-black dark:text-white hover:underline font-medium disabled:opacity-50 disabled:hover:no-underline"
                   >
                     {isSendingOtp ? "Sending..." : resendTimer > 0 ? `Resend OTP in ${resendTimer}s` : "Resend OTP"}
                   </button>
                 </div>
-                <input
-                  type="text"
-                  required
-                  value={otp}
-                  onChange={(e) => setOtp(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 rounded-lg text-sm focus:ring-[#D4AF37] focus:border-[#D4AF37] dark:text-white"
-                  placeholder="6-digit OTP"
+                  <input
+                    type="text"
+                    required
+                    value={otp}
+                    onChange={(e) => setOtp(e.target.value)}
+                    className="w-full px-4 py-2 border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] rounded-sm text-sm focus:ring-1 focus:ring-black dark:focus:ring-white focus:border-black dark:focus:border-white dark:text-white transition-all shadow-sm"
+                    placeholder="6-digit OTP"
                   maxLength={6}
                 />
                 <p className="text-xs text-gray-500 mt-1">OTP has been sent to {user?.email}</p>
@@ -227,13 +227,13 @@ export default function SettingsPage() {
                     {isSendingOtp ? "Sending..." : "Forgot password?"}
                   </button>
                 </div>
-                <input
-                  type="password"
-                  required
-                  value={currentPassword}
-                  onChange={(e) => setCurrentPassword(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 rounded-lg text-sm focus:ring-[#D4AF37] focus:border-[#D4AF37] dark:text-white"
-                  placeholder="••••••••"
+                  <input
+                    type="password"
+                    required
+                    value={currentPassword}
+                    onChange={(e) => setCurrentPassword(e.target.value)}
+                    className="w-full px-4 py-2 border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] rounded-sm text-sm focus:ring-1 focus:ring-black dark:focus:ring-white focus:border-black dark:focus:border-white dark:text-white transition-all shadow-sm"
+                    placeholder="••••••••"
                 />
               </div>
             )}
@@ -245,7 +245,7 @@ export default function SettingsPage() {
                 required
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 rounded-lg text-sm focus:ring-[#D4AF37] focus:border-[#D4AF37] dark:text-white"
+                className="w-full px-4 py-2 border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] rounded-sm text-sm focus:ring-1 focus:ring-black dark:focus:ring-white focus:border-black dark:focus:border-white dark:text-white transition-all shadow-sm"
                 placeholder="••••••••"
               />
             </div>
@@ -257,7 +257,7 @@ export default function SettingsPage() {
                 required
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 rounded-lg text-sm focus:ring-[#D4AF37] focus:border-[#D4AF37] dark:text-white"
+                className="w-full px-4 py-2 border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] rounded-sm text-sm focus:ring-1 focus:ring-black dark:focus:ring-white focus:border-black dark:focus:border-white dark:text-white transition-all shadow-sm"
                 placeholder="••••••••"
               />
             </div>
@@ -266,7 +266,7 @@ export default function SettingsPage() {
               <button
                 type="submit"
                 disabled={isUpdatingPassword}
-                className="w-full flex justify-center items-center gap-2 bg-black dark:bg-white text-white dark:text-black py-2.5 rounded-lg text-sm font-medium hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors disabled:opacity-70"
+                className="w-full flex justify-center items-center gap-2 bg-black dark:bg-white text-white dark:text-black py-2.5 rounded-sm text-sm font-bold uppercase tracking-widest hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors disabled:opacity-70 shadow-sm"
               >
                 {isUpdatingPassword ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                 {isUpdatingPassword ? (isOtpMode ? "Resetting..." : "Updating...") : (isOtpMode ? "Reset Password" : "Update Password")}

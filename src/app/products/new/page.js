@@ -11,6 +11,7 @@ import { UploadCloud, X, ArrowLeft, Check } from "lucide-react";
 
 const schema = yup.object({
   name: yup.string().required("Name is required").trim(),
+  shortSubtitle: yup.string().trim(),
   sku: yup.string().nullable().trim(),
   shortDescription: yup.string().required("Short description is required"),
   description: yup.string().required("Description is required"),
@@ -27,10 +28,29 @@ const schema = yup.object({
   category: yup.string().required("Category is required"),
   subCategory: yup.string().nullable(),
   stock: yup.number().integer("Must be an integer").min(0, "Cannot be negative").required("Stock is required"),
+  weight: yup.number()
+    .transform((value, originalValue) => (originalValue === "" ? undefined : value))
+    .min(0.01, "Weight must be greater than 0")
+    .notRequired(),
+  length: yup.number()
+    .transform((value, originalValue) => (originalValue === "" ? undefined : value))
+    .min(0.1, "Length must be greater than 0")
+    .notRequired(),
+  width: yup.number()
+    .transform((value, originalValue) => (originalValue === "" ? undefined : value))
+    .min(0.1, "Width must be greater than 0")
+    .notRequired(),
+  height: yup.number()
+    .transform((value, originalValue) => (originalValue === "" ? undefined : value))
+    .min(0.1, "Height must be greater than 0")
+    .notRequired(),
   occasionTags: yup.string(),
   isFeatured: yup.boolean(),
   isNewArrival: yup.boolean(),
   isActive: yup.boolean(),
+  limitedEdition: yup.boolean(),
+  requestAccessEnabled: yup.boolean(),
+  displayOrder: yup.number().integer().default(0),
 });
 
 export default function AddProduct() {
@@ -64,7 +84,14 @@ export default function AddProduct() {
       isFeatured: false,
       isNewArrival: false,
       isActive: true,
+      limitedEdition: false,
+      requestAccessEnabled: true,
+      displayOrder: 0,
       stock: 10,
+      weight: "",
+      length: "",
+      width: "",
+      height: "",
     },
   });
 
@@ -260,6 +287,15 @@ export default function AddProduct() {
               {errors.name && <p className="mt-1 text-xs text-red-500">{errors.name.message}</p>}
             </div>
             <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Short Subtitle</label>
+              <input
+                type="text"
+                placeholder="A statement of power."
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-black focus:border-black"
+                {...register("shortSubtitle")}
+              />
+            </div>
+            <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Category *</label>
               <select
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-black focus:border-black"
@@ -297,12 +333,12 @@ export default function AddProduct() {
           </div>
         </div>
 
-        {/* Pricing and Inventory */}
         <div className="space-y-4">
-          <h2 className="text-lg font-semibold border-b pb-2">Pricing & Inventory</h2>
+          <h2 className="text-lg font-semibold border-b pb-2">Internal Valuation & Inventory</h2>
+          <p className="text-xs text-gray-500 -mt-2">Prices are internal only and never displayed to customers.</p>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Original Price (₹) *</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Internal Price (₹) *</label>
               <input
                 type="number"
                 step="0.01"
@@ -342,6 +378,56 @@ export default function AddProduct() {
           </div>
         </div>
 
+        {/* Shipping & Dimensions */}
+        <div className="space-y-4">
+          <div className="border-b pb-2">
+            <h2 className="text-lg font-semibold">Shipping Package Details</h2>
+            <p className="text-sm text-gray-500">Enter the weight and dimensions of the final packed parcel, not just the product.</p>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Package Weight (kg)</label>
+              <input
+                type="number"
+                step="0.01"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-black focus:border-black"
+                {...register("weight")}
+              />
+              {errors.weight && <p className="mt-1 text-xs text-red-500">{errors.weight.message}</p>}
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Package Length (cm)</label>
+              <input
+                type="number"
+                step="0.1"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-black focus:border-black"
+                {...register("length")}
+              />
+              {errors.length && <p className="mt-1 text-xs text-red-500">{errors.length.message}</p>}
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Package Width (cm)</label>
+              <input
+                type="number"
+                step="0.1"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-black focus:border-black"
+                {...register("width")}
+              />
+              {errors.width && <p className="mt-1 text-xs text-red-500">{errors.width.message}</p>}
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Package Height (cm)</label>
+              <input
+                type="number"
+                step="0.1"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-black focus:border-black"
+                {...register("height")}
+              />
+              {errors.height && <p className="mt-1 text-xs text-red-500">{errors.height.message}</p>}
+            </div>
+          </div>
+        </div>
+
         {/* Visibility & Tags */}
         <div className="space-y-4">
           <h2 className="text-lg font-semibold border-b pb-2">Organization & Status</h2>
@@ -358,16 +444,29 @@ export default function AddProduct() {
           <div className="flex flex-wrap gap-6 mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
             <label className="flex items-center gap-2 cursor-pointer">
               <input type="checkbox" className="rounded w-4 h-4 border-gray-300 text-black focus:ring-black" {...register("isFeatured")} />
-              <span className="text-sm font-medium text-gray-800">Featured Product</span>
+              <span className="text-sm font-medium text-gray-800">Featured</span>
             </label>
             <label className="flex items-center gap-2 cursor-pointer">
-              <input type="checkbox" className="rounded w-4 h-4 border-gray-300 text-black focus:ring-black" {...register("isNewArrival")} />
-              <span className="text-sm font-medium text-gray-800">New Arrival</span>
+              <input type="checkbox" className="rounded w-4 h-4 border-gray-300 text-black focus:ring-black" {...register("limitedEdition")} />
+              <span className="text-sm font-medium text-gray-800">Limited Edition</span>
+            </label>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input type="checkbox" className="rounded w-4 h-4 border-gray-300 text-black focus:ring-black" {...register("requestAccessEnabled")} />
+              <span className="text-sm font-medium text-gray-800">Enable Private Access</span>
             </label>
             <label className="flex items-center gap-2 cursor-pointer">
               <input type="checkbox" className="rounded w-4 h-4 border-gray-300 text-blue-600 focus:ring-blue-600" {...register("isActive")} />
-              <span className="text-sm font-medium text-blue-800">Active (Visible to customers)</span>
+              <span className="text-sm font-medium text-blue-800">Active</span>
             </label>
+          </div>
+          
+          <div className="mt-4 max-w-xs">
+            <label className="block text-sm font-medium text-gray-700 mb-1">Display Order (Sorting)</label>
+            <input
+              type="number"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-black focus:border-black"
+              {...register("displayOrder")}
+            />
           </div>
         </div>
 

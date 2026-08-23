@@ -84,13 +84,13 @@ export default function ProductsPage() {
         </Link>
       </div>
 
-      <div className="bg-white dark:bg-[#111] p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 flex flex-col sm:flex-row gap-4">
+      <div className="bg-white dark:bg-[#0a0a0a] p-6 rounded-sm shadow-sm border border-gray-200 dark:border-gray-800 flex flex-col sm:flex-row gap-4">
         <div className="relative flex-1">
           <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
           <input
             type="text"
             placeholder="Search by name or SKU..."
-            className="w-full pl-9 pr-4 py-2 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 rounded-lg text-sm focus:ring-[#D4AF37] focus:border-[#D4AF37] dark:text-white"
+            className="w-full pl-9 pr-4 py-2 border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] rounded-sm text-sm focus:ring-1 focus:ring-gray-900 focus:border-gray-900 dark:focus:ring-gray-100 dark:focus:border-gray-100 dark:text-white transition-all shadow-sm"
             value={searchTerm}
             onChange={(e) => {
               setSearchTerm(e.target.value);
@@ -100,7 +100,7 @@ export default function ProductsPage() {
         </div>
         
         <select
-          className="border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 rounded-lg px-4 py-2 text-sm focus:ring-[#D4AF37] focus:border-[#D4AF37] w-full sm:w-48 dark:text-white"
+          className="border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] rounded-sm px-4 py-2 text-sm focus:ring-1 focus:ring-black focus:border-black dark:focus:ring-white dark:focus:border-white w-full sm:w-48 dark:text-white transition-all shadow-sm"
           value={categoryFilter}
           onChange={(e) => {
             setCategoryFilter(e.target.value);
@@ -114,7 +114,7 @@ export default function ProductsPage() {
         </select>
         
         <select
-          className="border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 rounded-lg px-4 py-2 text-sm focus:ring-[#D4AF37] focus:border-[#D4AF37] w-full sm:w-48 dark:text-white"
+          className="border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] rounded-sm px-4 py-2 text-sm focus:ring-1 focus:ring-black focus:border-black dark:focus:ring-white dark:focus:border-white w-full sm:w-48 dark:text-white transition-all shadow-sm"
           value={statusFilter}
           onChange={(e) => {
             setStatusFilter(e.target.value);
@@ -127,11 +127,11 @@ export default function ProductsPage() {
         </select>
       </div>
 
-      <div className="bg-white dark:bg-[#111] rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden">
+      <div className="bg-white dark:bg-[#0a0a0a] rounded-sm shadow-sm border border-gray-200 dark:border-gray-800 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-gray-50 dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800">
+              <tr className="bg-gray-50 dark:bg-black border-b border-gray-200 dark:border-gray-800">
                 <th className="px-6 py-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Product</th>
                 <th className="px-6 py-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">SKU</th>
                 <th className="px-6 py-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Price</th>
@@ -143,16 +143,26 @@ export default function ProductsPage() {
             <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
               {isLoading ? (
                 <tr>
-                  <td colSpan="6" className="px-6 py-12 text-center text-gray-500">
-                    <Loader2 className="w-8 h-8 animate-spin mx-auto text-gray-400 mb-2" />
-                    Loading products...
+                  <td colSpan="6" className="px-6 py-12">
+                    <div className="space-y-4">
+                      {[...Array(5)].map((_, i) => (
+                        <div key={i} className="flex gap-4">
+                          <div className="h-4 w-1/4 bg-gray-200 dark:bg-gray-800 rounded animate-pulse"></div>
+                          <div className="h-4 w-1/4 bg-gray-200 dark:bg-gray-800 rounded animate-pulse"></div>
+                          <div className="h-4 w-1/4 bg-gray-200 dark:bg-gray-800 rounded animate-pulse"></div>
+                        </div>
+                      ))}
+                    </div>
                   </td>
                 </tr>
               ) : data?.products?.length === 0 ? (
                 <tr>
-                  <td colSpan="6" className="px-6 py-12 text-center text-gray-500 flex flex-col items-center">
-                    <AlertCircle className="w-10 h-10 text-gray-300 mb-2" />
-                    No products found.
+                  <td colSpan="6" className="px-6 py-20 text-center text-gray-400">
+                    <div className="flex flex-col items-center justify-center">
+                      <AlertCircle className="w-8 h-8 text-gray-300 dark:text-gray-600 mb-3" strokeWidth={1.5} />
+                      <p className="text-sm font-medium">No products found.</p>
+                      <p className="text-xs mt-1 text-gray-400">Adjust your search or add a new product.</p>
+                    </div>
                   </td>
                 </tr>
               ) : (
@@ -181,13 +191,13 @@ export default function ProductsPage() {
                       )}
                     </td>
                     <td className="px-6 py-4">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${product.stock > 0 ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400" : "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400"}`}>
-                        {product.stock} in stock
+                      <span className={`inline-flex items-center px-2 py-1 rounded-sm border text-xs font-bold uppercase tracking-widest ${product.stock > 0 ? "bg-white text-black border-black dark:bg-black dark:text-white dark:border-white" : "bg-gray-100 text-gray-500 border-gray-300 dark:bg-[#111] dark:text-gray-600 dark:border-gray-800"}`}>
+                        {product.stock} IN STOCK
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${product.isActive ? "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400" : "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300"}`}>
-                        {product.isActive ? "Active" : "Inactive"}
+                      <span className={`inline-flex items-center px-2 py-1 rounded-sm border text-xs font-bold uppercase tracking-widest ${product.isActive ? "bg-black text-white border-black dark:bg-white dark:text-black dark:border-white" : "bg-white text-gray-400 border-gray-300 dark:bg-black dark:text-gray-600 dark:border-gray-800"}`}>
+                        {product.isActive ? "ACTIVE" : "INACTIVE"}
                       </span>
                     </td>
                     <td className="px-6 py-4">

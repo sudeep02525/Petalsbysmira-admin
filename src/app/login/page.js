@@ -97,8 +97,8 @@ export default function Login() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#0a0a0a] py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
       {/* Decorative gradient blur background */}
-      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-[#D4AF37] opacity-20 rounded-full blur-[120px] pointer-events-none"></div>
-      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-[#D4AF37] opacity-10 rounded-full blur-[120px] pointer-events-none"></div>
+      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-gray-600 opacity-20 rounded-full blur-[120px] pointer-events-none"></div>
+      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-gray-500 opacity-10 rounded-full blur-[120px] pointer-events-none"></div>
       
       <div className="max-w-md w-full space-y-8 bg-black/40 backdrop-blur-xl p-10 rounded-2xl shadow-2xl border border-gray-800 relative z-10">
         <div>
@@ -131,7 +131,7 @@ export default function Login() {
                   id="email-address"
                   type="email"
                   autoComplete="email"
-                  className="appearance-none block w-full px-3 py-3.5 pl-10 border border-gray-700 bg-gray-900/50 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-[#D4AF37] focus:border-transparent sm:text-sm transition-all"
+                  className="appearance-none block w-full px-3 py-3.5 pl-10 border border-gray-700 bg-gray-900/50 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-black dark:ring-white focus:border-transparent sm:text-sm transition-all"
                   placeholder="admin@example.com"
                   {...register("email")}
                 />
@@ -157,14 +157,14 @@ export default function Login() {
                   id="password"
                   type={showPassword ? "text" : "password"}
                   autoComplete="current-password"
-                  className="appearance-none block w-full px-3 py-3.5 pl-10 pr-10 border border-gray-700 bg-gray-900/50 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-[#D4AF37] focus:border-transparent sm:text-sm transition-all"
+                  className="appearance-none block w-full px-3 py-3.5 pl-10 pr-10 border border-gray-700 bg-gray-900/50 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-black dark:ring-white focus:border-transparent sm:text-sm transition-all"
                   placeholder="••••••••"
                   {...register("password")}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-[#D4AF37] transition-colors"
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-black dark:text-white transition-colors"
                 >
                   {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                 </button>
@@ -187,7 +187,7 @@ export default function Login() {
                   setForgotMessage("");
                   setForgotStep(1);
                 }}
-                className="font-medium text-gray-400 hover:text-[#D4AF37] transition-colors"
+                className="font-medium text-gray-400 hover:text-black dark:text-white transition-colors"
               >
                 Forgot your password?
               </button>
@@ -198,7 +198,7 @@ export default function Login() {
             <button
               type="submit"
               disabled={isLoading}
-              className="group relative w-full flex justify-center py-3.5 px-4 border border-transparent text-sm font-bold rounded-xl text-black bg-[#D4AF37] hover:bg-[#c4a133] shadow-[0_0_15px_rgba(212,175,55,0.4)] hover:shadow-[0_0_25px_rgba(212,175,55,0.6)] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-black focus:ring-[#D4AF37] disabled:opacity-50 transition-all duration-300"
+              className="group relative w-full flex justify-center py-3.5 px-4 border border-transparent text-sm font-bold rounded-xl text-black bg-white hover:bg-gray-200 shadow-xl hover:shadow-2xl focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-black focus:ring-white disabled:opacity-50 transition-all duration-300"
             >
               {isLoading ? "Signing in..." : "Sign in"}
             </button>
@@ -280,7 +280,7 @@ export default function Login() {
                 <button
                   type="submit"
                   disabled={forgotLoading}
-                  className="w-full bg-[#D4AF37] text-black font-bold py-2 rounded-md hover:bg-[#c4a133] disabled:opacity-50"
+                  className="w-full bg-black text-white py-2 rounded-md hover:bg-gray-800 disabled:opacity-50"
                 >
                   {forgotLoading ? "Resetting..." : "Reset Password"}
                 </button>

@@ -12,6 +12,7 @@ import toast from "react-hot-toast";
 
 const schema = yup.object({
   name: yup.string().required("Name is required").trim(),
+  shortSubtitle: yup.string().trim(),
   sku: yup.string().nullable().trim(),
   shortDescription: yup.string().required("Short description is required"),
   description: yup.string().required("Description is required"),
@@ -28,10 +29,29 @@ const schema = yup.object({
   category: yup.string().required("Category is required"),
   subCategory: yup.string().nullable(),
   stock: yup.number().integer("Must be an integer").min(0, "Cannot be negative").required("Stock is required"),
+  weight: yup.number()
+    .transform((value, originalValue) => (originalValue === "" ? undefined : value))
+    .min(0.01, "Weight must be greater than 0")
+    .notRequired(),
+  length: yup.number()
+    .transform((value, originalValue) => (originalValue === "" ? undefined : value))
+    .min(0.1, "Length must be greater than 0")
+    .notRequired(),
+  width: yup.number()
+    .transform((value, originalValue) => (originalValue === "" ? undefined : value))
+    .min(0.1, "Width must be greater than 0")
+    .notRequired(),
+  height: yup.number()
+    .transform((value, originalValue) => (originalValue === "" ? undefined : value))
+    .min(0.1, "Height must be greater than 0")
+    .notRequired(),
   occasionTags: yup.string(),
   isFeatured: yup.boolean(),
   isNewArrival: yup.boolean(),
   isActive: yup.boolean(),
+  limitedEdition: yup.boolean(),
+  requestAccessEnabled: yup.boolean(),
+  displayOrder: yup.number().integer().default(0),
 });
 
 export default function EditProduct() {
@@ -82,10 +102,17 @@ export default function EditProduct() {
         category: product.category?._id || product.category,
         subCategory: product.subCategory || "",
         stock: product.stock,
+        weight: product.weight || "",
+        length: product.dimensions?.length || "",
+        width: product.dimensions?.width || "",
+        height: product.dimensions?.height || "",
         occasionTags: product.occasionTags?.join(", ") || "",
-        isFeatured: product.isFeatured,
-        isNewArrival: product.isNewArrival,
-        isActive: product.isActive,
+        isFeatured: product.isFeatured || false,
+        isNewArrival: product.isNewArrival || false,
+        isActive: product.isActive !== undefined ? product.isActive : true,
+        limitedEdition: product.limitedEdition || false,
+        requestAccessEnabled: product.requestAccessEnabled !== undefined ? product.requestAccessEnabled : true,
+        displayOrder: product.displayOrder || 0,
       });
       setExistingImages(product.images || []);
     }
@@ -171,38 +198,47 @@ export default function EditProduct() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      <div className="flex items-center gap-4">
-        <button onClick={() => router.back()} className="p-2 hover:bg-gray-100 rounded-full transition-colors">
+      <div className="flex items-center gap-4 text-gray-900 dark:text-white">
+        <button onClick={() => router.back()} className="p-2 hover:bg-gray-100 dark:hover:bg-[#1a1a1a] rounded-full transition-colors">
           <ArrowLeft className="w-5 h-5" />
         </button>
         <h1 className="text-2xl font-bold font-serif">Edit Product</h1>
       </div>
 
       {submitError && (
-        <div className="bg-red-50 border-l-4 border-red-500 p-4">
-          <p className="text-red-700">{submitError}</p>
+        <div className="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 p-4">
+          <p className="text-red-700 dark:text-red-400">{submitError}</p>
         </div>
       )}
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-8 bg-white p-6 md:p-8 rounded-xl shadow-sm border border-gray-100">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-8 bg-white dark:bg-[#0a0a0a] p-6 md:p-8 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800">
         
         {/* Basic Info */}
         <div className="space-y-4">
-          <h2 className="text-lg font-semibold border-b pb-2">Basic Information</h2>
+          <h2 className="text-lg font-semibold border-b border-gray-200 dark:border-gray-800 pb-2 text-gray-900 dark:text-white">Basic Information</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Product Name *</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Product Name *</label>
               <input
                 type="text"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-black focus:border-black"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-[#111] text-gray-900 dark:text-white focus:ring-black dark:focus:ring-gray-600 focus:border-black dark:focus:border-gray-600"
                 {...register("name")}
               />
               {errors.name && <p className="mt-1 text-xs text-red-500">{errors.name.message}</p>}
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Category *</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Short Subtitle</label>
+              <input
+                type="text"
+                placeholder="A statement of power."
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-[#111] text-gray-900 dark:text-white focus:ring-black dark:focus:ring-gray-600 focus:border-black dark:focus:border-gray-600 placeholder-gray-400 dark:placeholder-gray-600"
+                {...register("shortSubtitle")}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Category *</label>
               <select
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-black focus:border-black"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-[#111] text-gray-900 dark:text-white focus:ring-black dark:focus:ring-gray-600 focus:border-black dark:focus:border-gray-600"
                 {...register("category")}
               >
                 <option value="">Select a category</option>
@@ -215,111 +251,174 @@ export default function EditProduct() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Short Description *</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Short Description *</label>
             <input
               type="text"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-black focus:border-black"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-[#111] text-gray-900 dark:text-white focus:ring-black dark:focus:ring-gray-600 focus:border-black dark:focus:border-gray-600"
               {...register("shortDescription")}
             />
             {errors.shortDescription && <p className="mt-1 text-xs text-red-500">{errors.shortDescription.message}</p>}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Full Description *</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Full Description *</label>
             <textarea
               rows={4}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-black focus:border-black"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-[#111] text-gray-900 dark:text-white focus:ring-black dark:focus:ring-gray-600 focus:border-black dark:focus:border-gray-600"
               {...register("description")}
             />
             {errors.description && <p className="mt-1 text-xs text-red-500">{errors.description.message}</p>}
           </div>
         </div>
 
-        {/* Pricing and Inventory */}
         <div className="space-y-4">
-          <h2 className="text-lg font-semibold border-b pb-2">Pricing & Inventory</h2>
+          <h2 className="text-lg font-semibold border-b border-gray-200 dark:border-gray-800 pb-2 text-gray-900 dark:text-white">Internal Valuation & Inventory</h2>
+          <p className="text-xs text-gray-500 dark:text-gray-400 -mt-2">Prices are internal only and never displayed to customers.</p>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Original Price (₹) *</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Internal Price (₹) *</label>
               <input
                 type="number"
                 step="0.01"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-black focus:border-black"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-[#111] text-gray-900 dark:text-white focus:ring-black dark:focus:ring-gray-600 focus:border-black dark:focus:border-gray-600"
                 {...register("price")}
               />
               {errors.price && <p className="mt-1 text-xs text-red-500">{errors.price.message}</p>}
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Discount Price (₹)</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Discount Price (₹)</label>
               <input
                 type="number"
                 step="0.01"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-black focus:border-black"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-[#111] text-gray-900 dark:text-white focus:ring-black dark:focus:ring-gray-600 focus:border-black dark:focus:border-gray-600"
                 {...register("discountPrice")}
               />
               {errors.discountPrice && <p className="mt-1 text-xs text-red-500">{errors.discountPrice.message}</p>}
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Stock Qty *</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Stock Qty *</label>
               <input
                 type="number"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-black focus:border-black"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-[#111] text-gray-900 dark:text-white focus:ring-black dark:focus:ring-gray-600 focus:border-black dark:focus:border-gray-600"
                 {...register("stock")}
               />
               {errors.stock && <p className="mt-1 text-xs text-red-500">{errors.stock.message}</p>}
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">SKU (Optional)</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">SKU (Optional)</label>
               <input
                 type="text"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-black focus:border-black"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-[#111] text-gray-900 dark:text-white focus:ring-black dark:focus:ring-gray-600 focus:border-black dark:focus:border-gray-600"
                 {...register("sku")}
               />
             </div>
           </div>
         </div>
 
+        {/* Shipping & Dimensions */}
+        <div className="space-y-4">
+          <div className="border-b border-gray-200 dark:border-gray-800 pb-2">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Shipping Package Details</h2>
+            <p className="text-sm text-gray-500 dark:text-gray-400">Enter the weight and dimensions of the final packed parcel, not just the product.</p>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Package Weight (kg)</label>
+              <input
+                type="number"
+                step="0.01"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-[#111] text-gray-900 dark:text-white focus:ring-black dark:focus:ring-gray-600 focus:border-black dark:focus:border-gray-600"
+                {...register("weight")}
+              />
+              {errors.weight && <p className="mt-1 text-xs text-red-500">{errors.weight.message}</p>}
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Package Length (cm)</label>
+              <input
+                type="number"
+                step="0.1"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-[#111] text-gray-900 dark:text-white focus:ring-black dark:focus:ring-gray-600 focus:border-black dark:focus:border-gray-600"
+                {...register("length")}
+              />
+              {errors.length && <p className="mt-1 text-xs text-red-500">{errors.length.message}</p>}
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Package Width (cm)</label>
+              <input
+                type="number"
+                step="0.1"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-[#111] text-gray-900 dark:text-white focus:ring-black dark:focus:ring-gray-600 focus:border-black dark:focus:border-gray-600"
+                {...register("width")}
+              />
+              {errors.width && <p className="mt-1 text-xs text-red-500">{errors.width.message}</p>}
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Package Height (cm)</label>
+              <input
+                type="number"
+                step="0.1"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-[#111] text-gray-900 dark:text-white focus:ring-black dark:focus:ring-gray-600 focus:border-black dark:focus:border-gray-600"
+                {...register("height")}
+              />
+              {errors.height && <p className="mt-1 text-xs text-red-500">{errors.height.message}</p>}
+            </div>
+          </div>
+        </div>
+
         {/* Visibility & Tags */}
         <div className="space-y-4">
-          <h2 className="text-lg font-semibold border-b pb-2">Organization & Status</h2>
+          <h2 className="text-lg font-semibold border-b border-gray-200 dark:border-gray-800 pb-2 text-gray-900 dark:text-white">Organization & Status</h2>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Occasion Tags (comma separated)</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Occasion Tags (comma separated)</label>
             <input
               type="text"
               placeholder="Rakhi, Birthday, Wedding, Festive"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-black focus:border-black"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-[#111] text-gray-900 dark:text-white focus:ring-black dark:focus:ring-gray-600 focus:border-black dark:focus:border-gray-600 placeholder-gray-400 dark:placeholder-gray-600"
               {...register("occasionTags")}
             />
           </div>
           
-          <div className="flex flex-wrap gap-6 mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+          <div className="flex flex-wrap gap-6 mt-4 p-4 bg-gray-50 dark:bg-[#111] rounded-lg border border-gray-200 dark:border-gray-800">
             <label className="flex items-center gap-2 cursor-pointer">
-              <input type="checkbox" className="rounded w-4 h-4 border-gray-300 text-black focus:ring-black" {...register("isFeatured")} />
-              <span className="text-sm font-medium text-gray-800">Featured Product</span>
+              <input type="checkbox" className="rounded w-4 h-4 border-gray-300 dark:border-gray-700 bg-white dark:bg-[#1a1a1a] text-black dark:text-white focus:ring-black dark:focus:ring-gray-600" {...register("isFeatured")} />
+              <span className="text-sm font-medium text-gray-800 dark:text-gray-200">Featured</span>
             </label>
             <label className="flex items-center gap-2 cursor-pointer">
-              <input type="checkbox" className="rounded w-4 h-4 border-gray-300 text-black focus:ring-black" {...register("isNewArrival")} />
-              <span className="text-sm font-medium text-gray-800">New Arrival</span>
+              <input type="checkbox" className="rounded w-4 h-4 border-gray-300 dark:border-gray-700 bg-white dark:bg-[#1a1a1a] text-black dark:text-white focus:ring-black dark:focus:ring-gray-600" {...register("limitedEdition")} />
+              <span className="text-sm font-medium text-gray-800 dark:text-gray-200">Limited Edition</span>
             </label>
             <label className="flex items-center gap-2 cursor-pointer">
-              <input type="checkbox" className="rounded w-4 h-4 border-gray-300 text-blue-600 focus:ring-blue-600" {...register("isActive")} />
-              <span className="text-sm font-medium text-blue-800">Active (Visible to customers)</span>
+              <input type="checkbox" className="rounded w-4 h-4 border-gray-300 dark:border-gray-700 bg-white dark:bg-[#1a1a1a] text-black dark:text-white focus:ring-black dark:focus:ring-gray-600" {...register("requestAccessEnabled")} />
+              <span className="text-sm font-medium text-gray-800 dark:text-gray-200">Enable Private Access</span>
             </label>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input type="checkbox" className="rounded w-4 h-4 border-gray-300 dark:border-gray-700 bg-white dark:bg-[#1a1a1a] text-blue-600 focus:ring-blue-600" {...register("isActive")} />
+              <span className="text-sm font-medium text-blue-800 dark:text-blue-400">Active</span>
+            </label>
+          </div>
+          
+          <div className="mt-4 max-w-xs">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Display Order (Sorting)</label>
+            <input
+              type="number"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-[#111] text-gray-900 dark:text-white focus:ring-black dark:focus:ring-gray-600 focus:border-black dark:focus:border-gray-600"
+              {...register("displayOrder")}
+            />
           </div>
         </div>
 
         {/* Images */}
         <div className="space-y-4">
-          <div className="flex items-center justify-between border-b pb-2">
-            <h2 className="text-lg font-semibold">Product Images (Up to 5)</h2>
-            <span className="text-sm text-gray-500">{existingImages.length + newImages.length} / 5</span>
+          <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-800 pb-2">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Product Images (Up to 5)</h2>
+            <span className="text-sm text-gray-500 dark:text-gray-400">{existingImages.length + newImages.length} / 5</span>
           </div>
           
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
             
             {/* Existing Images */}
             {existingImages.map((src, index) => (
-              <div key={`existing-${index}`} className="relative aspect-square rounded-lg border border-gray-200 overflow-hidden bg-gray-50 group">
+              <div key={`existing-${index}`} className="relative aspect-square rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden bg-gray-50 dark:bg-[#111] group">
                 <img src={src} alt="Existing Preview" className="w-full h-full object-cover" />
                 {index === 0 && (
                   <span className="absolute bottom-0 left-0 right-0 bg-black/60 text-white text-[10px] text-center py-1 font-medium">Main Image</span>
@@ -352,9 +451,9 @@ export default function EditProduct() {
             
             {/* Upload Button */}
             {(existingImages.length + newImages.length) < 5 && (
-              <label className="relative aspect-square rounded-lg border-2 border-dashed border-gray-300 flex flex-col items-center justify-center cursor-pointer hover:border-black hover:bg-gray-50 transition-colors bg-white">
+              <label className="relative aspect-square rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-700 flex flex-col items-center justify-center cursor-pointer hover:border-black dark:hover:border-gray-500 hover:bg-gray-50 dark:hover:bg-[#111] transition-colors bg-white dark:bg-[#1a1a1a]">
                 <UploadCloud className="w-6 h-6 text-gray-400 mb-1" />
-                <span className="text-[10px] text-gray-500 font-medium">Upload Image</span>
+                <span className="text-[10px] text-gray-500 dark:text-gray-400 font-medium">Upload Image</span>
                 <input
                   type="file"
                   accept="image/jpeg, image/png, image/webp"
@@ -368,11 +467,11 @@ export default function EditProduct() {
           {(existingImages.length + newImages.length) === 0 && <p className="text-xs text-red-500 mt-2">At least one image is required.</p>}
         </div>
 
-        <div className="pt-4 border-t flex justify-end">
+        <div className="pt-4 border-t border-gray-200 dark:border-gray-800 flex justify-end">
           <button
             type="submit"
             disabled={isSubmittingForm}
-            className="px-8 py-3 bg-black text-white rounded-lg font-medium hover:bg-gray-800 disabled:opacity-50 transition-colors flex items-center gap-2"
+            className="px-8 py-3 bg-black dark:bg-white text-white dark:text-black rounded-lg font-medium hover:bg-gray-800 dark:hover:bg-gray-200 disabled:opacity-50 transition-colors flex items-center gap-2"
           >
             {isSubmittingForm && <Loader2 className="w-4 h-4 animate-spin" />}
             {isSubmittingForm ? "Saving Changes..." : "Save Changes"}

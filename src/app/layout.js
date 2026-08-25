@@ -3,8 +3,8 @@ import Providers from "./Providers";
 import AdminLayout from "../components/layout/AdminLayout";
 import { Playfair_Display, Inter } from "next/font/google";
 
-const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-serif" });
-const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
+const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-playfair" });
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
 export const metadata = {
   title: "Admin Panel | Petals by Smira",

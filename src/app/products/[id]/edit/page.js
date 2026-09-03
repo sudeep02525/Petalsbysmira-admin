@@ -29,22 +29,6 @@ const schema = yup.object({
   category: yup.string().required("Category is required"),
   subCategory: yup.string().nullable(),
   stock: yup.number().integer("Must be an integer").min(0, "Cannot be negative").required("Stock is required"),
-  weight: yup.number()
-    .transform((value, originalValue) => (originalValue === "" ? undefined : value))
-    .min(0.01, "Weight must be greater than 0")
-    .notRequired(),
-  length: yup.number()
-    .transform((value, originalValue) => (originalValue === "" ? undefined : value))
-    .min(0.1, "Length must be greater than 0")
-    .notRequired(),
-  width: yup.number()
-    .transform((value, originalValue) => (originalValue === "" ? undefined : value))
-    .min(0.1, "Width must be greater than 0")
-    .notRequired(),
-  height: yup.number()
-    .transform((value, originalValue) => (originalValue === "" ? undefined : value))
-    .min(0.1, "Height must be greater than 0")
-    .notRequired(),
   occasionTags: yup.string(),
   isFeatured: yup.boolean(),
   isNewArrival: yup.boolean(),
@@ -102,11 +86,7 @@ export default function EditProduct() {
         category: product.category?._id || product.category,
         subCategory: product.subCategory || "",
         stock: product.stock,
-        weight: product.weight || "",
-        length: product.dimensions?.length || "",
-        width: product.dimensions?.width || "",
-        height: product.dimensions?.height || "",
-        occasionTags: product.occasionTags?.join(", ") || "",
+        occasionTags: product.occasionTags ? product.occasionTags.join(", ") : "",
         isFeatured: product.isFeatured || false,
         isNewArrival: product.isNewArrival || false,
         isActive: product.isActive !== undefined ? product.isActive : true,
@@ -311,56 +291,6 @@ export default function EditProduct() {
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-[#111] text-gray-900 dark:text-white focus:ring-black dark:focus:ring-gray-600 focus:border-black dark:focus:border-gray-600"
                 {...register("sku")}
               />
-            </div>
-          </div>
-        </div>
-
-        {/* Shipping & Dimensions */}
-        <div className="space-y-4">
-          <div className="border-b border-gray-200 dark:border-gray-800 pb-2">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Shipping Package Details</h2>
-            <p className="text-sm text-gray-500 dark:text-gray-400">Enter the weight and dimensions of the final packed parcel, not just the product.</p>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Package Weight (kg)</label>
-              <input
-                type="number"
-                step="0.01"
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-[#111] text-gray-900 dark:text-white focus:ring-black dark:focus:ring-gray-600 focus:border-black dark:focus:border-gray-600"
-                {...register("weight")}
-              />
-              {errors.weight && <p className="mt-1 text-xs text-red-500">{errors.weight.message}</p>}
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Package Length (cm)</label>
-              <input
-                type="number"
-                step="0.1"
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-[#111] text-gray-900 dark:text-white focus:ring-black dark:focus:ring-gray-600 focus:border-black dark:focus:border-gray-600"
-                {...register("length")}
-              />
-              {errors.length && <p className="mt-1 text-xs text-red-500">{errors.length.message}</p>}
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Package Width (cm)</label>
-              <input
-                type="number"
-                step="0.1"
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-[#111] text-gray-900 dark:text-white focus:ring-black dark:focus:ring-gray-600 focus:border-black dark:focus:border-gray-600"
-                {...register("width")}
-              />
-              {errors.width && <p className="mt-1 text-xs text-red-500">{errors.width.message}</p>}
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Package Height (cm)</label>
-              <input
-                type="number"
-                step="0.1"
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-[#111] text-gray-900 dark:text-white focus:ring-black dark:focus:ring-gray-600 focus:border-black dark:focus:border-gray-600"
-                {...register("height")}
-              />
-              {errors.height && <p className="mt-1 text-xs text-red-500">{errors.height.message}</p>}
             </div>
           </div>
         </div>

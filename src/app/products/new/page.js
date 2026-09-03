@@ -28,22 +28,6 @@ const schema = yup.object({
   category: yup.string().required("Category is required"),
   subCategory: yup.string().nullable(),
   stock: yup.number().integer("Must be an integer").min(0, "Cannot be negative").required("Stock is required"),
-  weight: yup.number()
-    .transform((value, originalValue) => (originalValue === "" ? undefined : value))
-    .min(0.01, "Weight must be greater than 0")
-    .notRequired(),
-  length: yup.number()
-    .transform((value, originalValue) => (originalValue === "" ? undefined : value))
-    .min(0.1, "Length must be greater than 0")
-    .notRequired(),
-  width: yup.number()
-    .transform((value, originalValue) => (originalValue === "" ? undefined : value))
-    .min(0.1, "Width must be greater than 0")
-    .notRequired(),
-  height: yup.number()
-    .transform((value, originalValue) => (originalValue === "" ? undefined : value))
-    .min(0.1, "Height must be greater than 0")
-    .notRequired(),
   occasionTags: yup.string(),
   isFeatured: yup.boolean(),
   isNewArrival: yup.boolean(),
@@ -88,10 +72,7 @@ export default function AddProduct() {
       requestAccessEnabled: true,
       displayOrder: 0,
       stock: 10,
-      weight: "",
-      length: "",
-      width: "",
-      height: "",
+      occasionTags: "",
     },
   });
 
@@ -377,55 +358,6 @@ export default function AddProduct() {
             </div>
           </div>
         </div>
-
-        {/* Shipping & Dimensions */}
-        <div className="space-y-4">
-          <div className="border-b pb-2">
-            <h2 className="text-lg font-semibold">Shipping Package Details</h2>
-            <p className="text-sm text-gray-500">Enter the weight and dimensions of the final packed parcel, not just the product.</p>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Package Weight (kg)</label>
-              <input
-                type="number"
-                step="0.01"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-black focus:border-black"
-                {...register("weight")}
-              />
-              {errors.weight && <p className="mt-1 text-xs text-red-500">{errors.weight.message}</p>}
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Package Length (cm)</label>
-              <input
-                type="number"
-                step="0.1"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-black focus:border-black"
-                {...register("length")}
-              />
-              {errors.length && <p className="mt-1 text-xs text-red-500">{errors.length.message}</p>}
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Package Width (cm)</label>
-              <input
-                type="number"
-                step="0.1"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-black focus:border-black"
-                {...register("width")}
-              />
-              {errors.width && <p className="mt-1 text-xs text-red-500">{errors.width.message}</p>}
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Package Height (cm)</label>
-              <input
-                type="number"
-                step="0.1"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-black focus:border-black"
-                {...register("height")}
-              />
-              {errors.height && <p className="mt-1 text-xs text-red-500">{errors.height.message}</p>}
-            </div>
-          </div>
         </div>
 
         {/* Visibility & Tags */}

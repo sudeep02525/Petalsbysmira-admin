@@ -13,29 +13,16 @@ import toast from "react-hot-toast";
 const schema = yup.object({
   name: yup.string().required("Name is required").trim(),
   shortSubtitle: yup.string().trim(),
-  sku: yup.string().nullable().trim(),
   shortDescription: yup.string().required("Short description is required"),
   description: yup.string().required("Description is required"),
-  price: yup.number().positive("Price must be positive").required("Price is required"),
-  discountPrice: yup.number().nullable().transform((v, o) => (o === "" || isNaN(v) ? null : v)).test(
-    'is-less-than-price',
-    'Discount price must be less than original price',
-    function(value) {
-      const { price } = this.parent;
-      if (value && price && value > price) return false;
-      return true;
-    }
-  ),
+  price: yup.number().min(0).required("Price is required"),
+  discountPrice: yup.number().min(0).nullable().transform((v, o) => o === "" ? null : v),
   category: yup.string().required("Category is required"),
   subCategory: yup.string().nullable(),
   stock: yup.number().integer("Must be an integer").min(0, "Cannot be negative").required("Stock is required"),
-  occasionTags: yup.string(),
   isFeatured: yup.boolean(),
+  collectionId: yup.string().nullable(),
   isNewArrival: yup.boolean(),
-  isActive: yup.boolean(),
-  limitedEdition: yup.boolean(),
-  requestAccessEnabled: yup.boolean(),
-  displayOrder: yup.number().integer().default(0),
 });
 
 export default function EditProduct() {
@@ -57,10 +44,18 @@ export default function EditProduct() {
     },
   });
 
+  const { data: collections = [] } = useQuery({
+    queryKey: ["collections"],
+    queryFn: async () => {
+      const res = await axiosInstance.get("/collections");
+      return res.data;
+    },
+  });
+
   const { data: product, isLoading: isLoadingProduct } = useQuery({
     queryKey: ["product", id],
     queryFn: async () => {
-      const res = await axiosInstance.get(`/products/${id}`);
+      const res = await axiosInstance.get(`/admin/products/${id}`);
       return res.data.product || res.data;
     },
   });
@@ -86,13 +81,9 @@ export default function EditProduct() {
         category: product.category?._id || product.category,
         subCategory: product.subCategory || "",
         stock: product.stock,
-        occasionTags: product.occasionTags ? product.occasionTags.join(", ") : "",
         isFeatured: product.isFeatured || false,
+        collectionId: product.collectionId?._id || product.collectionId || "",
         isNewArrival: product.isNewArrival || false,
-        isActive: product.isActive !== undefined ? product.isActive : true,
-        limitedEdition: product.limitedEdition || false,
-        requestAccessEnabled: product.requestAccessEnabled !== undefined ? product.requestAccessEnabled : true,
-        displayOrder: product.displayOrder || 0,
       });
       setExistingImages(product.images || []);
     }
@@ -100,8 +91,8 @@ export default function EditProduct() {
 
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
-    if (files.length + existingImages.length + newImages.length > 5) {
-      toast.error("Maximum 5 images allowed total");
+    if (files.length + existingImages.length + newImages.length > 1) {
+      toast.error("Maximum 1 image allowed");
       return;
     }
 
@@ -252,14 +243,14 @@ export default function EditProduct() {
         </div>
 
         <div className="space-y-4">
-          <h2 className="text-lg font-semibold border-b border-gray-200 dark:border-gray-800 pb-2 text-gray-900 dark:text-white">Internal Valuation & Inventory</h2>
-          <p className="text-xs text-gray-500 dark:text-gray-400 -mt-2">Prices are internal only and never displayed to customers.</p>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <h2 className="text-lg font-semibold border-b border-gray-200 dark:border-gray-800 pb-2 text-gray-900 dark:text-white">Pricing & Inventory</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Internal Price (₹) *</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Price (₹) *</label>
               <input
                 type="number"
                 step="0.01"
+                min="0"
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-[#111] text-gray-900 dark:text-white focus:ring-black dark:focus:ring-gray-600 focus:border-black dark:focus:border-gray-600"
                 {...register("price")}
               />
@@ -270,78 +261,56 @@ export default function EditProduct() {
               <input
                 type="number"
                 step="0.01"
+                min="0"
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-[#111] text-gray-900 dark:text-white focus:ring-black dark:focus:ring-gray-600 focus:border-black dark:focus:border-gray-600"
                 {...register("discountPrice")}
               />
               {errors.discountPrice && <p className="mt-1 text-xs text-red-500">{errors.discountPrice.message}</p>}
             </div>
+
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Stock Qty *</label>
               <input
                 type="number"
+                min="0"
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-[#111] text-gray-900 dark:text-white focus:ring-black dark:focus:ring-gray-600 focus:border-black dark:focus:border-gray-600"
                 {...register("stock")}
               />
               {errors.stock && <p className="mt-1 text-xs text-red-500">{errors.stock.message}</p>}
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">SKU (Optional)</label>
-              <input
-                type="text"
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-[#111] text-gray-900 dark:text-white focus:ring-black dark:focus:ring-gray-600 focus:border-black dark:focus:border-gray-600"
-                {...register("sku")}
-              />
             </div>
           </div>
         </div>
 
         {/* Visibility & Tags */}
         <div className="space-y-4">
-          <h2 className="text-lg font-semibold border-b border-gray-200 dark:border-gray-800 pb-2 text-gray-900 dark:text-white">Organization & Status</h2>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Occasion Tags (comma separated)</label>
-            <input
-              type="text"
-              placeholder="Rakhi, Birthday, Wedding, Festive"
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-[#111] text-gray-900 dark:text-white focus:ring-black dark:focus:ring-gray-600 focus:border-black dark:focus:border-gray-600 placeholder-gray-400 dark:placeholder-gray-600"
-              {...register("occasionTags")}
-            />
-          </div>
+          <h2 className="text-lg font-semibold border-b border-gray-200 dark:border-gray-800 pb-2 text-gray-900 dark:text-white">Home Page Visibility</h2>
           
-          <div className="flex flex-wrap gap-6 mt-4 p-4 bg-gray-50 dark:bg-[#111] rounded-lg border border-gray-200 dark:border-gray-800">
+          <div className="flex flex-wrap items-center gap-6 mt-4 p-4 bg-gray-50 dark:bg-[#111] rounded-lg border border-gray-200 dark:border-gray-800">
             <label className="flex items-center gap-2 cursor-pointer">
               <input type="checkbox" className="rounded w-4 h-4 border-gray-300 dark:border-gray-700 bg-white dark:bg-[#1a1a1a] text-black dark:text-white focus:ring-black dark:focus:ring-gray-600" {...register("isFeatured")} />
-              <span className="text-sm font-medium text-gray-800 dark:text-gray-200">Featured</span>
+              <span className="text-sm font-medium text-gray-800 dark:text-gray-200">Show in Home Page Sections</span>
             </label>
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input type="checkbox" className="rounded w-4 h-4 border-gray-300 dark:border-gray-700 bg-white dark:bg-[#1a1a1a] text-black dark:text-white focus:ring-black dark:focus:ring-gray-600" {...register("limitedEdition")} />
-              <span className="text-sm font-medium text-gray-800 dark:text-gray-200">Limited Edition</span>
-            </label>
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input type="checkbox" className="rounded w-4 h-4 border-gray-300 dark:border-gray-700 bg-white dark:bg-[#1a1a1a] text-black dark:text-white focus:ring-black dark:focus:ring-gray-600" {...register("requestAccessEnabled")} />
-              <span className="text-sm font-medium text-gray-800 dark:text-gray-200">Enable Private Access</span>
-            </label>
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input type="checkbox" className="rounded w-4 h-4 border-gray-300 dark:border-gray-700 bg-white dark:bg-[#1a1a1a] text-blue-600 focus:ring-blue-600" {...register("isActive")} />
-              <span className="text-sm font-medium text-blue-800 dark:text-blue-400">Active</span>
-            </label>
-          </div>
-          
-          <div className="mt-4 max-w-xs">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Display Order (Sorting)</label>
-            <input
-              type="number"
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-[#111] text-gray-900 dark:text-white focus:ring-black dark:focus:ring-gray-600 focus:border-black dark:focus:border-gray-600"
-              {...register("displayOrder")}
-            />
+            
+            <div className="flex items-center gap-3 border-l border-gray-300 dark:border-gray-700 pl-6">
+              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Select Section:</label>
+              <select
+                className="px-3 py-1.5 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-[#111] text-gray-900 dark:text-white focus:ring-black dark:focus:ring-gray-600 focus:border-black dark:focus:border-gray-600 text-sm min-w-[200px]"
+                {...register("collectionId")}
+              >
+                <option value="">Same as Product Category</option>
+                {categories.map((cat) => (
+                  <option key={cat._id} value={cat._id}>{cat.name}</option>
+                ))}
+              </select>
+            </div>
           </div>
         </div>
 
         {/* Images */}
         <div className="space-y-4">
           <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-800 pb-2">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Product Images (Up to 5)</h2>
-            <span className="text-sm text-gray-500 dark:text-gray-400">{existingImages.length + newImages.length} / 5</span>
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Product Image</h2>
+            <span className="text-sm text-gray-500 dark:text-gray-400">{existingImages.length + newImages.length} / 1</span>
           </div>
           
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
@@ -380,7 +349,7 @@ export default function EditProduct() {
             ))}
             
             {/* Upload Button */}
-            {(existingImages.length + newImages.length) < 5 && (
+            {(existingImages.length + newImages.length) < 1 && (
               <label className="relative aspect-square rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-700 flex flex-col items-center justify-center cursor-pointer hover:border-black dark:hover:border-gray-500 hover:bg-gray-50 dark:hover:bg-[#111] transition-colors bg-white dark:bg-[#1a1a1a]">
                 <UploadCloud className="w-6 h-6 text-gray-400 mb-1" />
                 <span className="text-[10px] text-gray-500 dark:text-gray-400 font-medium">Upload Image</span>

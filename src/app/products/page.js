@@ -75,13 +75,21 @@ export default function ProductsPage() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <h1 className="text-2xl font-bold font-serif dark:text-white">Products</h1>
-        <Link
-          href="/products/new"
-          className="bg-black dark:bg-white text-white dark:text-black px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors flex items-center gap-2"
-        >
-          <Plus className="w-4 h-4" />
-          Add Product
-        </Link>
+        <div className="flex items-center gap-3">
+          <Link
+            href="/categories"
+            className="bg-white dark:bg-[#1a1a1a] text-black dark:text-white border border-gray-200 dark:border-gray-800 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors flex items-center gap-2"
+          >
+            Manage Categories
+          </Link>
+          <Link
+            href="/products/new"
+            className="bg-black dark:bg-white text-white dark:text-black px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors flex items-center gap-2"
+          >
+            <Plus className="w-4 h-4" />
+            Add Product
+          </Link>
+        </div>
       </div>
 
       <div className="bg-white dark:bg-[#0a0a0a] p-6 rounded-sm shadow-sm border border-gray-200 dark:border-gray-800 flex flex-col sm:flex-row gap-4">

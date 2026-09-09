@@ -12,29 +12,16 @@ import { UploadCloud, X, ArrowLeft, Check } from "lucide-react";
 const schema = yup.object({
   name: yup.string().required("Name is required").trim(),
   shortSubtitle: yup.string().trim(),
-  sku: yup.string().nullable().trim(),
   shortDescription: yup.string().required("Short description is required"),
   description: yup.string().required("Description is required"),
-  price: yup.number().positive("Price must be positive").required("Price is required"),
-  discountPrice: yup.number().nullable().transform((v, o) => (o === "" || isNaN(v) ? null : v)).test(
-    'is-less-than-price',
-    'Discount price must be less than original price',
-    function(value) {
-      const { price } = this.parent;
-      if (value && price && value > price) return false;
-      return true;
-    }
-  ),
+  price: yup.number().min(0).required("Price is required"),
+  discountPrice: yup.number().min(0).nullable().transform((v, o) => o === "" ? null : v),
   category: yup.string().required("Category is required"),
   subCategory: yup.string().nullable(),
   stock: yup.number().integer("Must be an integer").min(0, "Cannot be negative").required("Stock is required"),
-  occasionTags: yup.string(),
   isFeatured: yup.boolean(),
   isNewArrival: yup.boolean(),
-  isActive: yup.boolean(),
-  limitedEdition: yup.boolean(),
-  requestAccessEnabled: yup.boolean(),
-  displayOrder: yup.number().integer().default(0),
+  collectionId: yup.string().nullable(),
 });
 
 export default function AddProduct() {
@@ -56,6 +43,14 @@ export default function AddProduct() {
     },
   });
 
+  const { data: collections = [], isLoading: isLoadingCollections } = useQuery({
+    queryKey: ["collections"],
+    queryFn: async () => {
+      const res = await axiosInstance.get("/collections");
+      return res.data;
+    },
+  });
+
   const {
     register,
     handleSubmit,
@@ -67,19 +62,15 @@ export default function AddProduct() {
     defaultValues: {
       isFeatured: false,
       isNewArrival: false,
-      isActive: true,
-      limitedEdition: false,
-      requestAccessEnabled: true,
-      displayOrder: 0,
       stock: 10,
-      occasionTags: "",
+      collectionId: "",
     },
   });
 
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
-    if (files.length + images.length > 5) {
-      alert("Maximum 5 images allowed");
+    if (files.length + images.length > 1) {
+      alert("Maximum 1 image allowed");
       return;
     }
 
@@ -111,15 +102,9 @@ export default function AddProduct() {
     const data = getValues();
     const categoryObj = categories.find(c => c._id === data.category);
     
-    let discountPercent = 0;
-    if (data.discountPrice && data.price) {
-      discountPercent = Math.round(((data.price - data.discountPrice) / data.price) * 100);
-    }
-    
     setPreviewData({
       ...data,
       categoryName: categoryObj?.name || "Unknown",
-      discountPercent,
       mainImage: imagePreviews[0]
     });
     
@@ -177,20 +162,11 @@ export default function AddProduct() {
           <div className="w-full md:w-1/3">
             <div className="aspect-square rounded-lg overflow-hidden bg-gray-100 relative border border-gray-200">
               <img src={previewData.mainImage} alt="Preview" className="w-full h-full object-cover" />
-              {previewData.discountPrice && (
-                <span className="absolute top-2 left-2 bg-yellow-400 text-black text-xs font-bold px-2 py-1 rounded">
-                  SALE {previewData.discountPercent}% OFF
-                </span>
-              )}
             </div>
             <div className="mt-4 space-y-2 text-sm">
               <div className="flex justify-between border-b pb-1">
                 <span className="text-gray-500">Stock</span>
                 <span className="font-semibold">{previewData.stock} units</span>
-              </div>
-              <div className="flex justify-between border-b pb-1">
-                <span className="text-gray-500">SKU</span>
-                <span className="font-semibold">{previewData.sku || "N/A"}</span>
               </div>
             </div>
           </div>
@@ -203,26 +179,15 @@ export default function AddProduct() {
             
             <div className="flex items-end gap-3 mb-6">
               <span className="text-2xl font-semibold text-gray-900">
-                ₹{previewData.discountPrice || previewData.price}
+                ₹{previewData.price}
               </span>
-              {previewData.discountPrice && (
-                <span className="text-lg text-gray-400 line-through mb-0.5">
-                  ₹{previewData.price}
-                </span>
-              )}
             </div>
 
             <p className="text-gray-600 mb-6">{previewData.shortDescription}</p>
 
             <div className="flex flex-wrap gap-2 mb-6">
               {previewData.isFeatured && (
-                <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">Featured</span>
-              )}
-              {previewData.isNewArrival && (
-                <span className="bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded">New Arrival</span>
-              )}
-              {!previewData.isActive && (
-                <span className="bg-red-100 text-red-800 text-xs px-2 py-1 rounded">Inactive (Hidden)</span>
+                <span className="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded">Home Page Showcase</span>
               )}
             </div>
 
@@ -315,14 +280,14 @@ export default function AddProduct() {
         </div>
 
         <div className="space-y-4">
-          <h2 className="text-lg font-semibold border-b pb-2">Internal Valuation & Inventory</h2>
-          <p className="text-xs text-gray-500 -mt-2">Prices are internal only and never displayed to customers.</p>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <h2 className="text-lg font-semibold border-b pb-2">Pricing & Inventory</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Internal Price (₹) *</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Price (₹) *</label>
               <input
                 type="number"
                 step="0.01"
+                min="0"
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-black focus:border-black"
                 {...register("price")}
               />
@@ -333,78 +298,53 @@ export default function AddProduct() {
               <input
                 type="number"
                 step="0.01"
+                min="0"
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-black focus:border-black"
                 {...register("discountPrice")}
               />
               {errors.discountPrice && <p className="mt-1 text-xs text-red-500">{errors.discountPrice.message}</p>}
             </div>
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Stock Qty *</label>
               <input
                 type="number"
+                min="0"
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-black focus:border-black"
                 {...register("stock")}
               />
               {errors.stock && <p className="mt-1 text-xs text-red-500">{errors.stock.message}</p>}
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">SKU (Optional)</label>
-              <input
-                type="text"
-                placeholder="PBS-001"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-black focus:border-black"
-                {...register("sku")}
-              />
-            </div>
           </div>
-        </div>
         </div>
 
-        {/* Visibility & Tags */}
         <div className="space-y-4">
-          <h2 className="text-lg font-semibold border-b pb-2">Organization & Status</h2>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Occasion Tags (comma separated)</label>
-            <input
-              type="text"
-              placeholder="Rakhi, Birthday, Wedding, Festive"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-black focus:border-black"
-              {...register("occasionTags")}
-            />
-          </div>
+          <h2 className="text-lg font-semibold border-b pb-2">Home Page Visibility</h2>
           
-          <div className="flex flex-wrap gap-6 mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+          <div className="flex flex-wrap items-center gap-6 mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
             <label className="flex items-center gap-2 cursor-pointer">
               <input type="checkbox" className="rounded w-4 h-4 border-gray-300 text-black focus:ring-black" {...register("isFeatured")} />
-              <span className="text-sm font-medium text-gray-800">Featured</span>
+              <span className="text-sm font-medium text-gray-800">Show in Home Page Sections</span>
             </label>
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input type="checkbox" className="rounded w-4 h-4 border-gray-300 text-black focus:ring-black" {...register("limitedEdition")} />
-              <span className="text-sm font-medium text-gray-800">Limited Edition</span>
-            </label>
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input type="checkbox" className="rounded w-4 h-4 border-gray-300 text-black focus:ring-black" {...register("requestAccessEnabled")} />
-              <span className="text-sm font-medium text-gray-800">Enable Private Access</span>
-            </label>
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input type="checkbox" className="rounded w-4 h-4 border-gray-300 text-blue-600 focus:ring-blue-600" {...register("isActive")} />
-              <span className="text-sm font-medium text-blue-800">Active</span>
-            </label>
-          </div>
-          
-          <div className="mt-4 max-w-xs">
-            <label className="block text-sm font-medium text-gray-700 mb-1">Display Order (Sorting)</label>
-            <input
-              type="number"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-black focus:border-black"
-              {...register("displayOrder")}
-            />
+            
+            <div className="flex items-center gap-3 border-l border-gray-300 pl-6">
+              <label className="text-sm font-medium text-gray-700">Select Section:</label>
+              <select
+                className="px-3 py-1.5 border border-gray-300 rounded-md focus:ring-black focus:border-black text-sm min-w-[200px]"
+                {...register("collectionId")}
+              >
+                <option value="">Same as Product Category</option>
+                {categories.map((cat) => (
+                  <option key={cat._id} value={cat._id}>{cat.name}</option>
+                ))}
+              </select>
+            </div>
           </div>
         </div>
 
         {/* Images */}
         <div className="space-y-4">
-          <h2 className="text-lg font-semibold border-b pb-2">Product Images (Up to 5)</h2>
+          <h2 className="text-lg font-semibold border-b pb-2">Product Image</h2>
           
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
             {imagePreviews.map((src, index) => (
@@ -423,7 +363,7 @@ export default function AddProduct() {
               </div>
             ))}
             
-            {imagePreviews.length < 5 && (
+            {imagePreviews.length < 1 && (
               <label className="relative aspect-square rounded-lg border-2 border-dashed border-gray-300 flex flex-col items-center justify-center cursor-pointer hover:border-black hover:bg-gray-50 transition-colors bg-white">
                 <UploadCloud className="w-6 h-6 text-gray-400 mb-1" />
                 <span className="text-[10px] text-gray-500 font-medium">Upload Image</span>

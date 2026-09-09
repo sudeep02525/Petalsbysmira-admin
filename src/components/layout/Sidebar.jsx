@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Package, Users, Settings, LogOut, Moon, Sun, X } from "lucide-react";
+import { LayoutDashboard, Package, Users, Settings, LogOut, Moon, Sun, X, Tags } from "lucide-react";
 import { useAuthStore } from "../../store/authStore";
 import { useEffect, useState } from "react";
 
@@ -59,7 +59,7 @@ export default function Sidebar({ isOpen, setIsOpen }) {
       >
         <div className="h-16 flex justify-between items-center px-6 border-b border-gray-200 dark:border-gray-800">
           <Link href="/" className="flex items-center gap-3 group" onClick={() => setIsOpen(false)}>
-            <img src="https://res.cloudinary.com/tbllydoh/image/upload/v1787316465/WhatsApp_Image_2026-08-21_at_6.01.28_PM.jpg" alt="Petals by Smira" className="h-8 w-8 rounded-md object-cover shadow-sm transition-transform group-hover:scale-105" />
+            <img src="/logo.jpg" alt="Petals by Smira" className="h-10 w-auto rounded-md object-contain shadow-sm transition-transform group-hover:scale-105" />
             <span className="text-xl font-bold font-serif tracking-tight text-gray-900 dark:text-white group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors">
               Petals by Smira
             </span>

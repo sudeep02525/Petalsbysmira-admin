@@ -43,6 +43,30 @@ export default function RequestDetailsPage() {
     }
   });
 
+  const resendMutation = useMutation({
+    mutationFn: async () => {
+      const res = await axiosInstance.post(`/requests/${id}/resend`);
+      return res.data;
+    },
+    onSuccess: () => {
+      toast.success("Private Access email resent successfully");
+      queryClient.invalidateQueries(["request", id]);
+    },
+    onError: (error) => toast.error(error.response?.data?.message || "Failed to resend"),
+  });
+
+  const revokeMutation = useMutation({
+    mutationFn: async () => {
+      const res = await axiosInstance.post(`/requests/${id}/revoke`);
+      return res.data;
+    },
+    onSuccess: () => {
+      toast.success("Private Access revoked");
+      queryClient.invalidateQueries(["request", id]);
+    },
+    onError: (error) => toast.error(error.response?.data?.message || "Failed to revoke"),
+  });
+
   const handleSave = () => {
     updateMutation.mutate({ status, internalNotes });
   };
@@ -208,6 +232,49 @@ export default function RequestDetailsPage() {
               </div>
             </div>
           </div>
+
+          {request.privateAccessToken && (
+            <div className="bg-white dark:bg-[#111] rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 p-6">
+              <h2 className="text-lg font-semibold font-serif border-b border-gray-100 dark:border-gray-800 pb-3 mb-4 dark:text-white flex items-center gap-2">
+                <ShieldCheck className="w-5 h-5 text-gray-400" /> Private Access
+              </h2>
+              <div className="space-y-4">
+                <div>
+                  <p className="text-sm text-gray-500 mb-1">Status</p>
+                  <p className={`font-medium ${request.privateAccessRevoked ? 'text-red-500' : new Date() > new Date(request.privateAccessExpiresAt) ? 'text-yellow-500' : 'text-green-500'}`}>
+                    {request.privateAccessRevoked ? "Revoked" : new Date() > new Date(request.privateAccessExpiresAt) ? "Expired" : "Active"}
+                  </p>
+                </div>
+                {request.privateAccessExpiresAt && (
+                  <div>
+                    <p className="text-sm text-gray-500 mb-1">Expires At</p>
+                    <p className="font-medium text-gray-900 dark:text-white">
+                      {dayjs(request.privateAccessExpiresAt).format("MMM D, YYYY [at] h:mm A")}
+                    </p>
+                  </div>
+                )}
+                
+                <div className="flex gap-3 pt-2">
+                  <button
+                    onClick={() => resendMutation.mutate()}
+                    disabled={resendMutation.isPending}
+                    className="flex-1 py-2 text-sm border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-[#222] transition disabled:opacity-50 dark:text-white"
+                  >
+                    Resend Link
+                  </button>
+                  {!request.privateAccessRevoked && new Date() <= new Date(request.privateAccessExpiresAt) && (
+                    <button
+                      onClick={() => revokeMutation.mutate()}
+                      disabled={revokeMutation.isPending}
+                      className="flex-1 py-2 text-sm bg-red-50 text-red-600 border border-red-200 rounded-lg hover:bg-red-100 transition disabled:opacity-50 dark:bg-red-900/20 dark:border-red-900"
+                    >
+                      Revoke
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
       </div>

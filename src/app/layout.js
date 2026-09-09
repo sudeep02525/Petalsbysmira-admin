@@ -9,6 +9,9 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 export const metadata = {
   title: "Admin Panel | Petals by Smira",
   description: "Manage Petals by Smira e-commerce",
+  icons: {
+    icon: '/fabicon.png',
+  },
 };
 
 export default function RootLayout({ children }) {

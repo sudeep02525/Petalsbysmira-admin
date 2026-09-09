@@ -43,6 +43,18 @@ export default function RequestDetailsPage() {
     }
   });
 
+  const generateLinkMutation = useMutation({
+    mutationFn: async () => {
+      const res = await axiosInstance.post(`/requests/${id}/generate-link`);
+      return res.data;
+    },
+    onSuccess: () => {
+      toast.success("Private Access Link generated and email sent successfully");
+      queryClient.invalidateQueries(["request", id]);
+    },
+    onError: (error) => toast.error(error.response?.data?.message || "Failed to generate link"),
+  });
+
   const resendMutation = useMutation({
     mutationFn: async () => {
       const res = await axiosInstance.post(`/requests/${id}/resend`);
@@ -233,11 +245,12 @@ export default function RequestDetailsPage() {
             </div>
           </div>
 
-          {request.privateAccessToken && (
-            <div className="bg-white dark:bg-[#111] rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 p-6">
-              <h2 className="text-lg font-semibold font-serif border-b border-gray-100 dark:border-gray-800 pb-3 mb-4 dark:text-white flex items-center gap-2">
-                <ShieldCheck className="w-5 h-5 text-gray-400" /> Private Access
-              </h2>
+          <div className="bg-white dark:bg-[#111] rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 p-6">
+            <h2 className="text-lg font-semibold font-serif border-b border-gray-100 dark:border-gray-800 pb-3 mb-4 dark:text-white flex items-center gap-2">
+              <ShieldCheck className="w-5 h-5 text-gray-400" /> Private Access
+            </h2>
+            
+            {request.privateAccessToken ? (
               <div className="space-y-4">
                 <div>
                   <p className="text-sm text-gray-500 mb-1">Status</p>
@@ -273,8 +286,20 @@ export default function RequestDetailsPage() {
                   )}
                 </div>
               </div>
-            </div>
-          )}
+            ) : (
+              <div className="text-center py-4">
+                <p className="text-sm text-gray-500 mb-4">No access link generated yet.</p>
+                <button
+                  onClick={() => generateLinkMutation.mutate()}
+                  disabled={generateLinkMutation.isPending}
+                  className="w-full py-2.5 px-4 bg-black dark:bg-white text-white dark:text-black rounded-lg font-medium hover:bg-gray-800 dark:hover:bg-gray-200 transition flex items-center justify-center gap-2 disabled:opacity-50"
+                >
+                  {generateLinkMutation.isPending && <Loader2 className="w-4 h-4 animate-spin" />}
+                  Generate & Send Access Link
+                </button>
+              </div>
+            )}
+          </div>
         </div>
 
       </div>

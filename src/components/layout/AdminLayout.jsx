@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import AuthGuard from "../auth/AuthGuard";
 import Sidebar from "./Sidebar";
 import Topbar from "./Topbar";
+import NotificationPoller from "./NotificationPoller";
 
 export default function AdminLayout({ children }) {
   const pathname = usePathname();
@@ -17,6 +18,7 @@ export default function AdminLayout({ children }) {
 
   return (
     <AuthGuard>
+      <NotificationPoller />
       <div className="flex h-screen bg-gray-50 dark:bg-[#0a0a0a] transition-colors">
         <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
         <div className="flex-1 flex flex-col min-w-0 overflow-hidden">

@@ -7,7 +7,7 @@ import * as yup from "yup";
 import { useQuery } from "@tanstack/react-query";
 import axiosInstance from "../../../services/axiosInstance";
 import { useRouter } from "next/navigation";
-import { UploadCloud, X, ArrowLeft, Check } from "lucide-react";
+import { UploadCloud, X, ArrowLeft, Check, Loader2 } from "lucide-react";
 
 const schema = yup.object({
   name: yup.string().required("Name is required").trim(),

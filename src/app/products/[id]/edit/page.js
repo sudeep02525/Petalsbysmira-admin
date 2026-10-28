@@ -29,7 +29,7 @@ export default function EditProduct() {
   const router = useRouter();
   const { id } = useParams();
   
-  const [existingImages, setExistingImages] = useState([]);
+  const [removedExistingImages, setRemovedExistingImages] = useState([]);
   const [newImages, setNewImages] = useState([]);
   const [newImagePreviews, setNewImagePreviews] = useState([]);
   
@@ -60,6 +60,10 @@ export default function EditProduct() {
     },
   });
 
+  const existingImages = (product?.images || []).filter(
+    (_, i) => !removedExistingImages.includes(i)
+  );
+
   const {
     register,
     handleSubmit,
@@ -85,7 +89,6 @@ export default function EditProduct() {
         collectionId: product.collectionId?._id || product.collectionId || "",
         isNewArrival: product.isNewArrival || false,
       });
-      setExistingImages(product.images || []);
     }
   }, [product, reset]);
 
@@ -112,7 +115,7 @@ export default function EditProduct() {
   };
 
   const removeExistingImage = (index) => {
-    setExistingImages((prev) => prev.filter((_, i) => i !== index));
+    setRemovedExistingImages((prev) => [...prev, index]);
   };
 
   const onSubmit = async (data) => {

@@ -13,13 +13,15 @@ export default function Sidebar({ isOpen, setIsOpen }) {
 
   // Initialize dark mode from localStorage or system preference
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("theme");
-      if (stored === "dark" || (!stored && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
-        setIsDarkMode(true);
-        document.documentElement.classList.add("dark");
-      }
+    const stored = localStorage.getItem("theme");
+    const isDark = stored === "dark" || (!stored && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    if (isDark) {
+      document.documentElement.classList.add("dark");
     }
+    const raf = requestAnimationFrame(() => {
+      setIsDarkMode(Boolean(isDark));
+    });
+    return () => cancelAnimationFrame(raf);
   }, []);
 
   const toggleDarkMode = () => {

@@ -51,7 +51,7 @@ export default function ProductsPage() {
   });
 
   const toggleActiveMutation = useMutation({
-    mutationFn: ({ id, isActive }) => axiosInstance.put(`/admin/products/${id}`, { isActive }),
+    mutationFn: ({ id, isActive }) => axiosInstance.patch(`/admin/products/${id}/status`, { isActive }),
     onSuccess: (_, variables) => {
       toast.success(variables.isActive ? "Product activated" : "Product deactivated");
       queryClient.invalidateQueries(["adminProducts"]);

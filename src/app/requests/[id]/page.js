@@ -73,7 +73,11 @@ export default function RequestDetailsPage() {
       if (data.accessUrl) {
         setGeneratedUrl(data.accessUrl);
       }
-      toast.success(data.message || "Access link generated and sent!");
+      if (data.emailSent === false) {
+        toast.error("Link generated, but email delivery failed. Please copy link below to send manually.", { duration: 6000 });
+      } else {
+        toast.success(data.message || "Access link generated and sent!");
+      }
     },
     onError: (error) => {
       toast.error(error.response?.data?.message || "Failed to generate link");
@@ -90,7 +94,11 @@ export default function RequestDetailsPage() {
       if (data.accessUrl) {
         setGeneratedUrl(data.accessUrl);
       }
-      toast.success(data.message || "Access email resent successfully!");
+      if (data.emailSent === false) {
+        toast.error("Link refreshed, but email delivery failed. Please copy link below to send manually.", { duration: 6000 });
+      } else {
+        toast.success(data.message || "Access email resent successfully!");
+      }
     },
     onError: (error) => {
       toast.error(error.response?.data?.message || "Failed to resend access link");
@@ -467,7 +475,11 @@ export default function RequestDetailsPage() {
 
                   <button
                     type="button"
-                    onClick={() => generateLinkMutation.mutate()}
+                    onClick={() => {
+                      if (confirm(`Generate 24-hour private access link and email it to ${request.email}?`)) {
+                        generateLinkMutation.mutate();
+                      }
+                    }}
                     disabled={generateLinkMutation.isPending}
                     className="w-full py-3 px-4 bg-gradient-to-r from-[#b58c49] to-[#d4af37] text-black font-semibold rounded-lg text-sm hover:brightness-105 transition shadow-sm flex items-center justify-center gap-2 disabled:opacity-50"
                   >

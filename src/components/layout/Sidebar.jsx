@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Package, Users, Settings, LogOut, Moon, Sun, X, Tags } from "lucide-react";
+import { LayoutDashboard, Package, Users, Settings, LogOut, Moon, Sun, X, Tags, Building2 } from "lucide-react";
 import { useAuthStore } from "../../store/authStore";
 import { useEffect, useState } from "react";
 
@@ -40,6 +40,8 @@ export default function Sidebar({ isOpen, setIsOpen }) {
     { name: "Dashboard", href: "/", icon: LayoutDashboard },
     { name: "Products", href: "/products", icon: Package },
     { name: "Access Requests", href: "/requests", icon: Users },
+    { name: "Categories", href: "/categories", icon: Tags },
+    { name: "Corporate Enquiries", href: "/enquiries", icon: Building2 },
     { name: "Settings", href: "/settings", icon: Settings },
   ];
 

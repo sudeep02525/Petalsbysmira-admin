@@ -392,6 +392,14 @@ export default function RequestDetailsPage() {
                         {isLinkRevoked ? "Yes" : "No"}
                       </strong>
                     </p>
+                    <p className="flex justify-between">
+                      <span>Client Opened Link:</span>
+                      <strong className={request.privateAccessUsedAt ? "text-emerald-600 dark:text-emerald-400" : "text-amber-600 dark:text-amber-400"}>
+                        {request.privateAccessUsedAt
+                          ? dayjs(request.privateAccessUsedAt).format("MMM D, YYYY h:mm A")
+                          : "Not yet opened"}
+                      </strong>
+                    </p>
                   </div>
 
                   {generatedUrl && (

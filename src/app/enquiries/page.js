@@ -61,7 +61,7 @@ export default function CorporateEnquiriesPage() {
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm text-gray-600 dark:text-gray-400">
+          <table className="w-full min-w-[640px] text-left text-sm text-gray-600 dark:text-gray-400">
             <thead className="text-xs text-gray-500 uppercase bg-gray-50 dark:bg-black dark:text-gray-500">
               <tr>
                 <th className="px-6 py-4 font-medium">Date</th>

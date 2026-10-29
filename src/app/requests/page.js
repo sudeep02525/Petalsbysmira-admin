@@ -10,22 +10,37 @@ import dayjs from "dayjs";
 export default function RequestsPage() {
   const [page, setPage] = useState(1);
   const [status, setStatus] = useState("");
+  const [search, setSearch] = useState("");
 
   const { data, isLoading } = useQuery({
-    queryKey: ["requests", page, status],
+    queryKey: ["requests", page, status, search],
     queryFn: async () => {
-      const res = await axiosInstance.get(`/requests?page=${page}&limit=20${status ? `&status=${status}` : ""}`);
+      const params = new URLSearchParams();
+      params.set("page", page.toString());
+      params.set("limit", "20");
+      if (status) params.set("status", status);
+      if (search.trim()) params.set("search", search.trim());
+      const res = await axiosInstance.get(`/requests?${params.toString()}`);
       return res.data;
     },
   });
 
   const getStatusBadge = (status) => {
     switch (status) {
-      case "New": return <span className="inline-flex items-center px-2 py-1 rounded-sm border text-xs font-bold uppercase tracking-widest bg-black text-white border-black dark:bg-white dark:text-black dark:border-white">New</span>;
-      case "Contacted": return <span className="inline-flex items-center px-2 py-1 rounded-sm border text-xs font-bold uppercase tracking-widest bg-gray-100 text-black border-gray-300 dark:bg-[#1a1a1a] dark:text-white dark:border-gray-700">Contacted</span>;
-      case "Approved": return <span className="inline-flex items-center px-2 py-1 rounded-sm border text-xs font-bold uppercase tracking-widest bg-white text-black border-black dark:bg-black dark:text-white dark:border-white">Approved</span>;
-      case "Declined": return <span className="inline-flex items-center px-2 py-1 rounded-sm border text-xs font-bold uppercase tracking-widest bg-gray-100 text-gray-500 border-gray-300 dark:bg-[#111] dark:text-gray-600 dark:border-gray-800 line-through">Declined</span>;
-      default: return <span className="inline-flex items-center px-2 py-1 rounded-sm border text-xs font-bold uppercase tracking-widest bg-gray-100 text-gray-800 border-gray-300 dark:bg-[#111] dark:text-gray-400 dark:border-gray-800">{status}</span>;
+      case "New":
+        return <span className="inline-flex items-center px-2 py-1 rounded-sm border text-xs font-bold uppercase tracking-widest bg-black text-white border-black dark:bg-white dark:text-black dark:border-white">New</span>;
+      case "Contacted":
+        return <span className="inline-flex items-center px-2 py-1 rounded-sm border text-xs font-bold uppercase tracking-widest bg-yellow-50 text-yellow-800 border-yellow-200 dark:bg-yellow-950/40 dark:text-yellow-300 dark:border-yellow-900/50">Contacted</span>;
+      case "In Discussion":
+        return <span className="inline-flex items-center px-2 py-1 rounded-sm border text-xs font-bold uppercase tracking-widest bg-purple-50 text-purple-800 border-purple-200 dark:bg-purple-950/40 dark:text-purple-300 dark:border-purple-900/50">In Discussion</span>;
+      case "Access Granted":
+        return <span className="inline-flex items-center px-2 py-1 rounded-sm border text-xs font-bold uppercase tracking-widest bg-emerald-50 text-emerald-800 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-900/50">Access Granted</span>;
+      case "Closed":
+        return <span className="inline-flex items-center px-2 py-1 rounded-sm border text-xs font-bold uppercase tracking-widest bg-gray-100 text-gray-700 border-gray-300 dark:bg-[#1a1a1a] dark:text-gray-300 dark:border-gray-700">Closed</span>;
+      case "Rejected":
+        return <span className="inline-flex items-center px-2 py-1 rounded-sm border text-xs font-bold uppercase tracking-widest bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/40 dark:text-rose-400 dark:border-rose-900/50 line-through">Rejected</span>;
+      default:
+        return <span className="inline-flex items-center px-2 py-1 rounded-sm border text-xs font-bold uppercase tracking-widest bg-gray-100 text-gray-800 border-gray-300 dark:bg-[#111] dark:text-gray-400 dark:border-gray-800">{status}</span>;
     }
   };
 
@@ -42,7 +57,9 @@ export default function RequestsPage() {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
             <input 
               type="text"
-              placeholder="Search by name or email..."
+              value={search}
+              onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+              placeholder="Search by name, email, or phone..."
               className="w-full pl-9 pr-4 py-2 text-sm border border-gray-200 dark:border-gray-800 rounded-sm bg-white dark:bg-[#0a0a0a] focus:ring-black focus:border-black dark:focus:ring-white dark:focus:border-white dark:text-white transition-all shadow-sm"
             />
           </div>
@@ -57,8 +74,10 @@ export default function RequestsPage() {
               <option value="">All Statuses</option>
               <option value="New">New</option>
               <option value="Contacted">Contacted</option>
-              <option value="Approved">Approved</option>
-              <option value="Declined">Declined</option>
+              <option value="In Discussion">In Discussion</option>
+              <option value="Access Granted">Access Granted</option>
+              <option value="Closed">Closed</option>
+              <option value="Rejected">Rejected</option>
             </select>
           </div>
         </div>
@@ -98,7 +117,7 @@ export default function RequestsPage() {
                       <div className="text-xs">{req.email}</div>
                     </td>
                     <td className="px-6 py-4">
-                      {req.productId ? req.productId.name : "N/A"}
+                      {req.productId ? req.productId.name : "General Enquiry"}
                     </td>
                     <td className="px-6 py-4">
                       {getStatusBadge(req.status)}

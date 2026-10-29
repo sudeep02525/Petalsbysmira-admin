@@ -1,6 +1,7 @@
 "use client";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Toaster } from "react-hot-toast";
 import { useState } from "react";
 
 export default function Providers({ children }) {
@@ -9,6 +10,7 @@ export default function Providers({ children }) {
   return (
     <QueryClientProvider client={queryClient}>
       {children}
+      <Toaster position="top-right" />
     </QueryClientProvider>
   );
 }

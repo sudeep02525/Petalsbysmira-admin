@@ -17,7 +17,7 @@ export default function ProductsPage() {
   const { data: categories = [] } = useQuery({
     queryKey: ["categories"],
     queryFn: async () => {
-      const res = await axiosInstance.get("/categories");
+      const res = await axiosInstance.get("/admin/categories");
       return res.data;
     },
   });

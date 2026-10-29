@@ -39,7 +39,7 @@ export default function EditProduct() {
   const { data: categories = [] } = useQuery({
     queryKey: ["categories"],
     queryFn: async () => {
-      const res = await axiosInstance.get("/categories");
+      const res = await axiosInstance.get("/admin/categories");
       return res.data;
     },
   });
@@ -47,7 +47,7 @@ export default function EditProduct() {
   const { data: collections = [] } = useQuery({
     queryKey: ["collections"],
     queryFn: async () => {
-      const res = await axiosInstance.get("/collections");
+      const res = await axiosInstance.get("/admin/categories");
       return res.data;
     },
   });
@@ -94,8 +94,8 @@ export default function EditProduct() {
 
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
-    if (files.length + existingImages.length + newImages.length > 1) {
-      toast.error("Maximum 1 image allowed");
+    if (files.length + existingImages.length + newImages.length > 6) {
+      toast.error("Maximum 6 images allowed");
       return;
     }
 

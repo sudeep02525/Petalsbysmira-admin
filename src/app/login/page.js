@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
@@ -18,8 +18,15 @@ export default function Login() {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [isSessionExpired, setIsSessionExpired] = useState(false);
   const login = useAuthStore((state) => state.login);
   const router = useRouter();
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.location.search.includes("expired=true")) {
+      setIsSessionExpired(true);
+    }
+  }, []);
 
   // Forgot Password State
   const [showForgotModal, setShowForgotModal] = useState(false);
@@ -109,6 +116,11 @@ export default function Login() {
             Sign in to manage your premium store
           </p>
         </div>
+        {isSessionExpired && (
+          <div className="bg-amber-950/40 border-l-4 border-amber-500 p-4 rounded text-sm text-amber-200">
+            Your session has expired. Please sign in again.
+          </div>
+        )}
         <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
           {error && (
             <div className="bg-red-50 border-l-4 border-red-400 p-4">

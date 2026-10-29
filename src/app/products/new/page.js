@@ -38,7 +38,7 @@ export default function AddProduct() {
   const { data: categories = [], isLoading: isLoadingCategories } = useQuery({
     queryKey: ["categories"],
     queryFn: async () => {
-      const res = await axiosInstance.get("/categories");
+      const res = await axiosInstance.get("/admin/categories");
       return res.data;
     },
   });
@@ -46,7 +46,7 @@ export default function AddProduct() {
   const { data: collections = [], isLoading: isLoadingCollections } = useQuery({
     queryKey: ["collections"],
     queryFn: async () => {
-      const res = await axiosInstance.get("/collections");
+      const res = await axiosInstance.get("/admin/categories");
       return res.data;
     },
   });
@@ -69,8 +69,8 @@ export default function AddProduct() {
 
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
-    if (files.length + images.length > 1) {
-      alert("Maximum 1 image allowed");
+    if (files.length + images.length > 6) {
+      alert("Maximum 6 images allowed");
       return;
     }
 

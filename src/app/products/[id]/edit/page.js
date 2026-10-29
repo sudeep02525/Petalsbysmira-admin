@@ -44,14 +44,6 @@ export default function EditProduct() {
     },
   });
 
-  const { data: collections = [] } = useQuery({
-    queryKey: ["collections"],
-    queryFn: async () => {
-      const res = await axiosInstance.get("/admin/categories");
-      return res.data;
-    },
-  });
-
   const { data: product, isLoading: isLoadingProduct } = useQuery({
     queryKey: ["product", id],
     queryFn: async () => {
@@ -136,6 +128,9 @@ export default function EditProduct() {
           formData.append(key, data[key]);
         }
       });
+      if (!data.collectionId && data.category) {
+        formData.set("collectionId", data.category);
+      }
       
       // Append existing images to keep
       existingImages.forEach(img => {
@@ -291,21 +286,8 @@ export default function EditProduct() {
           <div className="flex flex-wrap items-center gap-6 mt-4 p-4 bg-gray-50 dark:bg-[#111] rounded-lg border border-gray-200 dark:border-gray-800">
             <label className="flex items-center gap-2 cursor-pointer">
               <input type="checkbox" className="rounded w-4 h-4 border-gray-300 dark:border-gray-700 bg-white dark:bg-[#1a1a1a] text-black dark:text-white focus:ring-black dark:focus:ring-gray-600" {...register("isFeatured")} />
-              <span className="text-sm font-medium text-gray-800 dark:text-gray-200">Show in Home Page Sections</span>
+              <span className="text-sm font-medium text-gray-800 dark:text-gray-200">Show in Home Page Showcase</span>
             </label>
-            
-            <div className="flex items-center gap-3 border-l border-gray-300 dark:border-gray-700 pl-6">
-              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Select Section:</label>
-              <select
-                className="px-3 py-1.5 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-[#111] text-gray-900 dark:text-white focus:ring-black dark:focus:ring-gray-600 focus:border-black dark:focus:border-gray-600 text-sm min-w-[200px]"
-                {...register("collectionId")}
-              >
-                <option value="">Same as Product Category</option>
-                {categories.map((cat) => (
-                  <option key={cat._id} value={cat._id}>{cat.name}</option>
-                ))}
-              </select>
-            </div>
           </div>
         </div>
 
@@ -313,7 +295,7 @@ export default function EditProduct() {
         <div className="space-y-4">
           <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-800 pb-2">
             <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Product Image</h2>
-            <span className="text-sm text-gray-500 dark:text-gray-400">{existingImages.length + newImages.length} / 1</span>
+            <span className="text-sm text-gray-500 dark:text-gray-400">{existingImages.length + newImages.length} / 6</span>
           </div>
           
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4">

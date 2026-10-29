@@ -43,14 +43,6 @@ export default function AddProduct() {
     },
   });
 
-  const { data: collections = [], isLoading: isLoadingCollections } = useQuery({
-    queryKey: ["collections"],
-    queryFn: async () => {
-      const res = await axiosInstance.get("/admin/categories");
-      return res.data;
-    },
-  });
-
   const {
     register,
     handleSubmit,
@@ -124,6 +116,9 @@ export default function AddProduct() {
           formData.append(key, data[key]);
         }
       });
+      if (!data.collectionId && data.category) {
+        formData.set("collectionId", data.category);
+      }
       
       // Append files
       images.forEach(image => {
@@ -324,21 +319,8 @@ export default function AddProduct() {
           <div className="flex flex-wrap items-center gap-6 mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
             <label className="flex items-center gap-2 cursor-pointer">
               <input type="checkbox" className="rounded w-4 h-4 border-gray-300 text-black focus:ring-black" {...register("isFeatured")} />
-              <span className="text-sm font-medium text-gray-800">Show in Home Page Sections</span>
+              <span className="text-sm font-medium text-gray-800">Show in Home Page Showcase</span>
             </label>
-            
-            <div className="flex items-center gap-3 border-l border-gray-300 pl-6">
-              <label className="text-sm font-medium text-gray-700">Select Section:</label>
-              <select
-                className="px-3 py-1.5 border border-gray-300 rounded-md focus:ring-black focus:border-black text-sm min-w-[200px]"
-                {...register("collectionId")}
-              >
-                <option value="">Same as Product Category</option>
-                {categories.map((cat) => (
-                  <option key={cat._id} value={cat._id}>{cat.name}</option>
-                ))}
-              </select>
-            </div>
           </div>
         </div>
 

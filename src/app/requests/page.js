@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import axiosInstance from "../../services/axiosInstance";
 import Link from "next/link";
@@ -11,15 +11,24 @@ export default function RequestsPage() {
   const [page, setPage] = useState(1);
   const [status, setStatus] = useState("");
   const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearch(search);
+      setPage(1);
+    }, 300);
+    return () => clearTimeout(handler);
+  }, [search]);
 
   const { data, isLoading } = useQuery({
-    queryKey: ["requests", page, status, search],
+    queryKey: ["requests", page, status, debouncedSearch],
     queryFn: async () => {
       const params = new URLSearchParams();
       params.set("page", page.toString());
       params.set("limit", "20");
       if (status) params.set("status", status);
-      if (search.trim()) params.set("search", search.trim());
+      if (debouncedSearch.trim()) params.set("search", debouncedSearch.trim());
       const res = await axiosInstance.get(`/requests?${params.toString()}`);
       return res.data;
     },

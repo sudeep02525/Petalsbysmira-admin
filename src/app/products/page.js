@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import axiosInstance from "../../services/axiosInstance";
 import Link from "next/link";
@@ -9,10 +9,19 @@ import toast from "react-hot-toast";
 
 export default function ProductsPage() {
   const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [page, setPage] = useState(1);
   const queryClient = useQueryClient();
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearch(searchTerm);
+      setPage(1);
+    }, 300);
+    return () => clearTimeout(handler);
+  }, [searchTerm]);
 
   const { data: categories = [] } = useQuery({
     queryKey: ["categories"],
@@ -23,10 +32,10 @@ export default function ProductsPage() {
   });
 
   const { data, isLoading } = useQuery({
-    queryKey: ["adminProducts", page, searchTerm, categoryFilter, statusFilter],
+    queryKey: ["adminProducts", page, debouncedSearch, categoryFilter, statusFilter],
     queryFn: async () => {
       const params = { page, limit: 10 };
-      if (searchTerm) params.search = searchTerm;
+      if (debouncedSearch) params.search = debouncedSearch;
       if (categoryFilter) params.category = categoryFilter;
       if (statusFilter) params.isActive = statusFilter;
       

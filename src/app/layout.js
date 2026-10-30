@@ -16,8 +16,11 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
-      <body className={`${playfair.variable} ${inter.variable} font-sans antialiased bg-gray-50 dark:bg-[#050505] text-gray-900 dark:text-gray-200 selection:bg-gray-800 selection:text-white transition-colors duration-500`}>
+    <html lang="en" suppressHydrationWarning>
+      <body
+        className={`${playfair.variable} ${inter.variable} font-sans antialiased bg-gray-50 dark:bg-[#050505] text-gray-900 dark:text-gray-200 selection:bg-gray-800 selection:text-white transition-colors duration-500`}
+        suppressHydrationWarning
+      >
         <Providers>
           <AdminLayout>
             {children}

@@ -11,6 +11,7 @@ import { UploadCloud, X, ArrowLeft, Check, Loader2 } from "lucide-react";
 
 const schema = yup.object({
   name: yup.string().required("Name is required").trim(),
+  sku: yup.string().trim().nullable(),
   shortSubtitle: yup.string().trim(),
   shortDescription: yup.string().required("Short description is required"),
   description: yup.string().required("Description is required"),
@@ -21,6 +22,8 @@ const schema = yup.object({
   stock: yup.number().integer("Must be an integer").min(0, "Cannot be negative").required("Stock is required"),
   isFeatured: yup.boolean(),
   isNewArrival: yup.boolean(),
+  requestAccessEnabled: yup.boolean().default(true),
+  occasionTags: yup.string().nullable(),
   collectionId: yup.string().nullable(),
 });
 
@@ -52,8 +55,11 @@ export default function AddProduct() {
   } = useForm({
     resolver: yupResolver(schema),
     defaultValues: {
+      sku: "",
       isFeatured: false,
       isNewArrival: false,
+      requestAccessEnabled: true,
+      occasionTags: "",
       stock: 10,
       collectionId: "",
     },
@@ -228,6 +234,16 @@ export default function AddProduct() {
               {errors.name && <p className="mt-1 text-xs text-red-500">{errors.name.message}</p>}
             </div>
             <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">SKU (Unique Item Code)</label>
+              <input
+                type="text"
+                placeholder="e.g. ED-PAN-01"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-black focus:border-black"
+                {...register("sku")}
+              />
+              {errors.sku && <p className="mt-1 text-xs text-red-500">{errors.sku.message}</p>}
+            </div>
+            <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Short Subtitle</label>
               <input
                 type="text"
@@ -314,13 +330,43 @@ export default function AddProduct() {
         </div>
 
         <div className="space-y-4">
-          <h2 className="text-lg font-semibold border-b pb-2">Home Page Visibility</h2>
+          <h2 className="text-lg font-semibold border-b pb-2">Access & Visibility</h2>
           
-          <div className="flex flex-wrap items-center gap-6 mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input type="checkbox" className="rounded w-4 h-4 border-gray-300 text-black focus:ring-black" {...register("requestAccessEnabled")} />
+              <div>
+                <span className="text-sm font-semibold text-gray-900 block">Private Access Gated</span>
+                <span className="text-xs text-gray-500">Price hidden; requires private access link</span>
+              </div>
+            </label>
             <label className="flex items-center gap-2 cursor-pointer">
               <input type="checkbox" className="rounded w-4 h-4 border-gray-300 text-black focus:ring-black" {...register("isFeatured")} />
-              <span className="text-sm font-medium text-gray-800">Show in Home Page Showcase</span>
+              <div>
+                <span className="text-sm font-semibold text-gray-900 block">Show in Showcase</span>
+                <span className="text-xs text-gray-500">Feature on homepage curation</span>
+              </div>
             </label>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input type="checkbox" className="rounded w-4 h-4 border-gray-300 text-black focus:ring-black" {...register("isNewArrival")} />
+              <div>
+                <span className="text-sm font-semibold text-gray-900 block">New Arrival</span>
+                <span className="text-xs text-gray-500">Display New Arrival badge</span>
+              </div>
+            </label>
+          </div>
+
+          <div className="mt-4">
+            <label className="block text-sm font-medium text-gray-700 mb-1">Occasion Tags (Comma Separated)</label>
+            <input
+              type="text"
+              placeholder="e.g. Rakhi, Diwali, Wedding, Anniversary, Birthday, Gifting"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-black focus:border-black"
+              {...register("occasionTags")}
+            />
+            <p className="text-xs text-gray-500 mt-1">
+              Used to filter products on /occasion/:occasion (e.g. Rakhi, Diwali, Wedding, Anniversary).
+            </p>
           </div>
         </div>
 

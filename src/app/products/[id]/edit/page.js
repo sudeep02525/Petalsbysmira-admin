@@ -12,6 +12,7 @@ import toast from "react-hot-toast";
 
 const schema = yup.object({
   name: yup.string().required("Name is required").trim(),
+  sku: yup.string().trim().nullable(),
   shortSubtitle: yup.string().trim(),
   shortDescription: yup.string().required("Short description is required"),
   description: yup.string().required("Description is required"),
@@ -23,6 +24,8 @@ const schema = yup.object({
   isFeatured: yup.boolean(),
   collectionId: yup.string().nullable(),
   isNewArrival: yup.boolean(),
+  requestAccessEnabled: yup.boolean(),
+  occasionTags: yup.string().nullable(),
 });
 
 export default function EditProduct() {
@@ -70,6 +73,7 @@ export default function EditProduct() {
       reset({
         name: product.name,
         sku: product.sku || "",
+        shortSubtitle: product.shortSubtitle || "",
         shortDescription: product.shortDescription || "",
         description: product.description || "",
         price: product.price,
@@ -78,8 +82,10 @@ export default function EditProduct() {
         subCategory: product.subCategory || "",
         stock: product.stock,
         isFeatured: product.isFeatured || false,
-        collectionId: product.collectionId?._id || product.collectionId || "",
         isNewArrival: product.isNewArrival || false,
+        requestAccessEnabled: product.requestAccessEnabled !== undefined ? product.requestAccessEnabled : true,
+        occasionTags: Array.isArray(product.occasionTags) ? product.occasionTags.join(", ") : product.occasionTags || "",
+        collectionId: product.collectionId?._id || product.collectionId || "",
       });
     }
   }, [product, reset]);
@@ -196,6 +202,16 @@ export default function EditProduct() {
               {errors.name && <p className="mt-1 text-xs text-red-500">{errors.name.message}</p>}
             </div>
             <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">SKU (Unique Item Code)</label>
+              <input
+                type="text"
+                placeholder="e.g. ED-PAN-01"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-[#111] text-gray-900 dark:text-white focus:ring-black dark:focus:ring-gray-600 focus:border-black dark:focus:border-gray-600"
+                {...register("sku")}
+              />
+              {errors.sku && <p className="mt-1 text-xs text-red-500">{errors.sku.message}</p>}
+            </div>
+            <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Short Subtitle</label>
               <input
                 type="text"
@@ -281,13 +297,43 @@ export default function EditProduct() {
 
         {/* Visibility & Tags */}
         <div className="space-y-4">
-          <h2 className="text-lg font-semibold border-b border-gray-200 dark:border-gray-800 pb-2 text-gray-900 dark:text-white">Home Page Visibility</h2>
+          <h2 className="text-lg font-semibold border-b border-gray-200 dark:border-gray-800 pb-2 text-gray-900 dark:text-white">Access & Visibility</h2>
           
-          <div className="flex flex-wrap items-center gap-6 mt-4 p-4 bg-gray-50 dark:bg-[#111] rounded-lg border border-gray-200 dark:border-gray-800">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gray-50 dark:bg-[#111] rounded-lg border border-gray-200 dark:border-gray-800">
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input type="checkbox" className="rounded w-4 h-4 border-gray-300 dark:border-gray-700 bg-white dark:bg-[#1a1a1a] text-black dark:text-white focus:ring-black dark:focus:ring-gray-600" {...register("requestAccessEnabled")} />
+              <div>
+                <span className="text-sm font-semibold text-gray-900 dark:text-white block">Private Access Gated</span>
+                <span className="text-xs text-gray-500 dark:text-gray-400">Price hidden; requires private access link</span>
+              </div>
+            </label>
             <label className="flex items-center gap-2 cursor-pointer">
               <input type="checkbox" className="rounded w-4 h-4 border-gray-300 dark:border-gray-700 bg-white dark:bg-[#1a1a1a] text-black dark:text-white focus:ring-black dark:focus:ring-gray-600" {...register("isFeatured")} />
-              <span className="text-sm font-medium text-gray-800 dark:text-gray-200">Show in Home Page Showcase</span>
+              <div>
+                <span className="text-sm font-semibold text-gray-900 dark:text-white block">Show in Showcase</span>
+                <span className="text-xs text-gray-500 dark:text-gray-400">Feature on homepage curation</span>
+              </div>
             </label>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input type="checkbox" className="rounded w-4 h-4 border-gray-300 dark:border-gray-700 bg-white dark:bg-[#1a1a1a] text-black dark:text-white focus:ring-black dark:focus:ring-gray-600" {...register("isNewArrival")} />
+              <div>
+                <span className="text-sm font-semibold text-gray-900 dark:text-white block">New Arrival</span>
+                <span className="text-xs text-gray-500 dark:text-gray-400">Display New Arrival badge</span>
+              </div>
+            </label>
+          </div>
+
+          <div className="mt-4">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Occasion Tags (Comma Separated)</label>
+            <input
+              type="text"
+              placeholder="e.g. Rakhi, Diwali, Wedding, Anniversary, Birthday, Gifting"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-[#111] text-gray-900 dark:text-white focus:ring-black dark:focus:ring-gray-600 focus:border-black dark:focus:border-gray-600"
+              {...register("occasionTags")}
+            />
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              Used to filter products on /occasion/:occasion (e.g. Rakhi, Diwali, Wedding, Anniversary).
+            </p>
           </div>
         </div>
 

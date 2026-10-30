@@ -1,19 +1,35 @@
 "use client";
 
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import axiosInstance from "../../services/axiosInstance";
-import { Search, Building2, Mail, Phone, Calendar, DollarSign, Layers } from "lucide-react";
+import { Search, Building2, Mail, Phone } from "lucide-react";
 import dayjs from "dayjs";
+import toast from "react-hot-toast";
 
 export default function CorporateEnquiriesPage() {
   const [search, setSearch] = useState("");
+  const queryClient = useQueryClient();
 
   const { data, isLoading } = useQuery({
     queryKey: ["corporate-enquiries"],
     queryFn: async () => {
       const res = await axiosInstance.get("/corporate-enquiries");
       return res.data;
+    },
+  });
+
+  const updateStatusMutation = useMutation({
+    mutationFn: async ({ id, status }) => {
+      const res = await axiosInstance.patch(`/corporate-enquiries/${id}/status`, { status });
+      return res.data;
+    },
+    onSuccess: () => {
+      toast.success("Enquiry status updated");
+      queryClient.invalidateQueries(["corporate-enquiries"]);
+    },
+    onError: (err) => {
+      toast.error(err.response?.data?.message || "Failed to update status");
     },
   });
 
@@ -26,9 +42,25 @@ export default function CorporateEnquiriesPage() {
       item.contactName?.toLowerCase().includes(q) ||
       item.email?.toLowerCase().includes(q) ||
       item.phone?.toLowerCase().includes(q) ||
-      item.budget?.toLowerCase().includes(q)
+      item.budget?.toLowerCase().includes(q) ||
+      item.status?.toLowerCase().includes(q)
     );
   });
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case "New":
+        return "bg-black text-white dark:bg-white dark:text-black border-black dark:border-white";
+      case "Contacted":
+        return "bg-yellow-50 text-yellow-800 border-yellow-200 dark:bg-yellow-950/40 dark:text-yellow-300 dark:border-yellow-900/50";
+      case "Quoted":
+        return "bg-purple-50 text-purple-800 border-purple-200 dark:bg-purple-950/40 dark:text-purple-300 dark:border-purple-900/50";
+      case "Closed":
+        return "bg-emerald-50 text-emerald-800 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-900/50";
+      default:
+        return "bg-gray-100 text-gray-800 border-gray-200";
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -61,10 +93,11 @@ export default function CorporateEnquiriesPage() {
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[640px] text-left text-sm text-gray-600 dark:text-gray-400">
+          <table className="w-full min-w-[760px] text-left text-sm text-gray-600 dark:text-gray-400">
             <thead className="text-xs text-gray-500 uppercase bg-gray-50 dark:bg-black dark:text-gray-500">
               <tr>
                 <th className="px-6 py-4 font-medium">Date</th>
+                <th className="px-6 py-4 font-medium">Status</th>
                 <th className="px-6 py-4 font-medium">Company</th>
                 <th className="px-6 py-4 font-medium">Contact Person</th>
                 <th className="px-6 py-4 font-medium">Quantity</th>
@@ -75,13 +108,13 @@ export default function CorporateEnquiriesPage() {
             <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
               {isLoading ? (
                 <tr>
-                  <td colSpan="6" className="px-6 py-8 text-center text-gray-500">
+                  <td colSpan="7" className="px-6 py-8 text-center text-gray-500">
                     Loading corporate enquiries...
                   </td>
                 </tr>
               ) : enquiries.length === 0 ? (
                 <tr>
-                  <td colSpan="6" className="px-6 py-8 text-center text-gray-500">
+                  <td colSpan="7" className="px-6 py-8 text-center text-gray-500">
                     No corporate enquiries found.
                   </td>
                 </tr>
@@ -90,6 +123,19 @@ export default function CorporateEnquiriesPage() {
                   <tr key={enq._id} className="hover:bg-gray-50 dark:hover:bg-[#151515] transition-colors">
                     <td className="px-6 py-4 whitespace-nowrap text-xs font-mono text-gray-500">
                       {dayjs(enq.createdAt).format("MMM DD, YYYY")}
+                    </td>
+                    <td className="px-6 py-4">
+                      <select
+                        value={enq.status || "New"}
+                        disabled={updateStatusMutation.isPending}
+                        onChange={(e) => updateStatusMutation.mutate({ id: enq._id, status: e.target.value })}
+                        className={`text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-sm border cursor-pointer focus:outline-none bg-transparent ${getStatusColor(enq.status || "New")}`}
+                      >
+                        <option value="New" className="bg-white dark:bg-black text-black dark:text-white">New</option>
+                        <option value="Contacted" className="bg-white dark:bg-black text-yellow-600 dark:text-yellow-400">Contacted</option>
+                        <option value="Quoted" className="bg-white dark:bg-black text-purple-600 dark:text-purple-400">Quoted</option>
+                        <option value="Closed" className="bg-white dark:bg-black text-emerald-600 dark:text-emerald-400">Closed</option>
+                      </select>
                     </td>
                     <td className="px-6 py-4">
                       <div className="font-semibold text-gray-900 dark:text-white flex items-center gap-1.5">
@@ -129,4 +175,3 @@ export default function CorporateEnquiriesPage() {
     </div>
   );
 }
-

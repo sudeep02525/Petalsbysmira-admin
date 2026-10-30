@@ -278,7 +278,7 @@ export default function RequestDetailsPage() {
                 </div>
                 <div>
                   <Link
-                    href={`/products/${request.productId._id}`}
+                    href={`/products/${request.productId._id}/edit`}
                     className="text-lg font-serif font-bold text-gray-900 dark:text-white hover:text-[var(--color-gold)] transition-colors"
                   >
                     {request.productId.name}

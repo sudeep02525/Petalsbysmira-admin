@@ -161,6 +161,7 @@ export default function RequestDetailsPage() {
     request.privateAccessExpiresAt && new Date() > new Date(request.privateAccessExpiresAt);
   const isLinkRevoked = Boolean(request.privateAccessRevoked);
   const hasLink = Boolean(request.privateAccessToken);
+  const currentAccessUrl = generatedUrl || request?.accessUrl || "";
 
   return (
     <div className="max-w-5xl mx-auto space-y-6 pb-20">
@@ -407,29 +408,29 @@ export default function RequestDetailsPage() {
                     </p>
                   </div>
 
-                  {generatedUrl && (
-                    <div className="space-y-1.5">
+                  {currentAccessUrl ? (
+                    <div className="space-y-2 bg-gray-50 dark:bg-black/40 p-3 rounded-lg border border-gray-100 dark:border-gray-800">
                       <label className="text-xs font-medium text-gray-700 dark:text-gray-300 flex items-center justify-between">
-                        <span>Latest Access Link:</span>
+                        <span className="font-semibold text-gray-900 dark:text-white">Active Access Link:</span>
                         <a
-                          href={generatedUrl}
+                          href={currentAccessUrl}
                           target="_blank"
                           rel="noreferrer"
-                          className="text-[var(--color-gold)] hover:underline inline-flex items-center gap-1"
+                          className="text-[var(--color-gold)] hover:underline inline-flex items-center gap-1 text-xs"
                         >
-                          Open <ExternalLink className="w-3 h-3" />
+                          Open Link <ExternalLink className="w-3 h-3" />
                         </a>
                       </label>
                       <div className="flex gap-2">
                         <input
                           type="text"
                           readOnly
-                          value={generatedUrl}
-                          className="w-full text-xs font-mono bg-gray-50 dark:bg-black border border-gray-200 dark:border-gray-700 rounded-lg px-2.5 py-2 text-gray-600 dark:text-gray-300"
+                          value={currentAccessUrl}
+                          className="w-full text-xs font-mono bg-white dark:bg-black border border-gray-200 dark:border-gray-700 rounded-lg px-2.5 py-2 text-gray-700 dark:text-gray-300 select-all"
                         />
                         <button
                           type="button"
-                          onClick={() => handleCopy(generatedUrl)}
+                          onClick={() => handleCopy(currentAccessUrl)}
                           className="p-2 border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition flex items-center justify-center flex-shrink-0"
                           title="Copy Link"
                         >
@@ -440,6 +441,23 @@ export default function RequestDetailsPage() {
                           )}
                         </button>
                       </div>
+
+                      {request.phone && (
+                        <a
+                          href={`https://wa.me/${request.phone.replace(/[^0-9]/g, "")}?text=${encodeURIComponent(
+                            `Hello ${request.fullName},\n\nHere is your private access link to view exclusive luxury pricing at Petals by Smira:\n${currentAccessUrl}\n\n(Valid for 24 hours)`
+                          )}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="w-full mt-1.5 py-2 px-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-medium flex items-center justify-center gap-1.5 transition shadow-sm"
+                        >
+                          <Phone className="w-3.5 h-3.5" /> Share on WhatsApp
+                        </a>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="text-xs text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/30 p-3 rounded-lg border border-amber-200 dark:border-amber-900/50">
+                      Link generated hai par URL database me saved nahi hai. Naya copyable link aur WhatsApp button ke liye &ldquo;Resend Access Email&rdquo; dabayein.
                     </div>
                   )}
 

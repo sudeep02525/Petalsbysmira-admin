@@ -97,7 +97,7 @@ export default function RequestDetailsPage() {
       if (data.emailSent === false) {
         toast.error("Link refreshed, but email delivery failed. Please copy link below to send manually.", { duration: 6000 });
       } else {
-        toast.success(data.message || "Access email resent successfully!");
+        toast.success("Naya link bhej diya. Purana link ab invalid ho gaya hai.", { duration: 5000 });
       }
     },
     onError: (error) => {
@@ -336,6 +336,11 @@ export default function RequestDetailsPage() {
                   <option value="Closed">Closed</option>
                   <option value="Rejected">Rejected</option>
                 </select>
+                {status === "Access Granted" && !request.privateAccessToken && (
+                  <p className="text-xs text-amber-600 dark:text-amber-400 mt-2 font-medium">
+                    Status set hai, par link abhi generate nahi hua — neeche &ldquo;Generate &amp; Email Access Link&rdquo; dabao.
+                  </p>
+                )}
               </div>
 
               <div>
@@ -441,7 +446,11 @@ export default function RequestDetailsPage() {
                   <div className="flex flex-col gap-2 pt-2">
                     <button
                       type="button"
-                      onClick={() => resendLinkMutation.mutate()}
+                      onClick={() => {
+                        if (confirm("Naya link generate hoga aur purana email wala link invalid ho jayega. Kya aap continue karna chahte hain?")) {
+                          resendLinkMutation.mutate();
+                        }
+                      }}
                       disabled={resendLinkMutation.isPending}
                       className="w-full py-2.5 px-4 bg-black dark:bg-white text-white dark:text-black rounded-lg text-sm font-medium hover:bg-gray-800 dark:hover:bg-gray-200 transition flex items-center justify-center gap-2 disabled:opacity-50"
                     >

@@ -80,23 +80,6 @@ export default function NotificationPoller() {
       queryClient.invalidateQueries(["latest-request"]);
     });
 
-    socket.on("newCorporateEnquiry", () => {
-      toast("New Corporate Enquiry Received!", {
-        icon: "🏢",
-        duration: 6000,
-        style: {
-          borderRadius: "10px",
-          background: "#333",
-          color: "#fff",
-          fontWeight: "500",
-        },
-      });
-
-      playNotificationSound();
-
-      queryClient.invalidateQueries(["corporate-enquiries"]);
-    });
-
     return () => {
       socket.disconnect();
     };

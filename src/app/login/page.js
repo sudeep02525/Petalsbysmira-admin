@@ -6,7 +6,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { useAuthStore } from "../../store/authStore";
 import { useRouter } from "next/navigation";
-import { Lock, Mail, X, Eye, EyeOff } from "lucide-react";
+import { Lock, Mail, X, Eye, EyeOff, Sun, Moon } from "lucide-react";
 import axiosInstance from "../../services/axiosInstance";
 
 const schema = yup.object({
@@ -19,14 +19,30 @@ export default function Login() {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [isSessionExpired, setIsSessionExpired] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(false);
   const login = useAuthStore((state) => state.login);
   const router = useRouter();
 
   useEffect(() => {
-    if (typeof window !== "undefined" && window.location.search.includes("expired=true")) {
-      setIsSessionExpired(true);
+    if (typeof window !== "undefined") {
+      if (window.location.search.includes("expired=true")) {
+        setIsSessionExpired(true);
+      }
+      setIsDarkMode(document.documentElement.classList.contains("dark"));
     }
   }, []);
+
+  const toggleTheme = () => {
+    if (isDarkMode) {
+      document.documentElement.classList.remove("dark");
+      localStorage.setItem("theme", "light");
+      setIsDarkMode(false);
+    } else {
+      document.documentElement.classList.add("dark");
+      localStorage.setItem("theme", "dark");
+      setIsDarkMode(true);
+    }
+  };
 
   // Forgot Password State
   const [showForgotModal, setShowForgotModal] = useState(false);
@@ -103,11 +119,31 @@ export default function Login() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-[#0a0a0a] py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden transition-colors duration-300">
+      {/* Theme Toggle Button in top right */}
+      <div className="absolute top-6 right-6 z-20">
+        <button
+          type="button"
+          onClick={toggleTheme}
+          className="flex items-center gap-2 px-3.5 py-2 rounded-full bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-gray-800 text-xs font-medium text-gray-700 dark:text-gray-300 shadow-sm hover:bg-gray-100 dark:hover:bg-[#252525] transition"
+          aria-label="Toggle Theme"
+        >
+          {isDarkMode ? (
+            <>
+              <Sun className="w-4 h-4 text-amber-500" /> <span className="hidden sm:inline">Light Mode</span>
+            </>
+          ) : (
+            <>
+              <Moon className="w-4 h-4 text-gray-700" /> <span className="hidden sm:inline">Dark Mode</span>
+            </>
+          )}
+        </button>
+      </div>
+
       {/* Decorative gradient blur background */}
       <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-gray-300 dark:bg-gray-600 opacity-30 dark:opacity-20 rounded-full blur-[120px] pointer-events-none"></div>
       <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-gray-400 dark:bg-gray-500 opacity-20 dark:opacity-10 rounded-full blur-[120px] pointer-events-none"></div>
       
-      <div className="max-w-md w-full space-y-8 bg-white/80 dark:bg-black/40 backdrop-blur-xl p-8 sm:p-10 rounded-2xl shadow-xl dark:shadow-2xl border border-gray-200 dark:border-gray-800 relative z-10">
+      <div className="max-w-md w-full space-y-8 bg-white/90 dark:bg-black/40 backdrop-blur-xl p-8 sm:p-10 rounded-2xl shadow-xl dark:shadow-2xl border border-gray-200 dark:border-gray-800 relative z-10">
         <div>
           <h2 className="mt-2 text-center text-3xl sm:text-4xl font-extrabold text-gray-900 dark:text-white font-serif tracking-tight">
             Admin Panel

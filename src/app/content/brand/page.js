@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import axiosInstance from "../../../services/axiosInstance";
-import { Save, Loader2, Globe, Phone, Mail, MapPin, Instagram, Facebook, Twitter, Bell, Shield, Check } from "lucide-react";
+import { Save, Loader2, Globe, Phone, Mail, MapPin, Bell, Shield, Check, Share2 } from "lucide-react";
 import toast from "react-hot-toast";
 
 export default function BrandSettingsPage() {
@@ -200,7 +200,7 @@ export default function BrandSettingsPage() {
       {/* Social Profiles */}
       <div className="bg-white dark:bg-[#111] p-6 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm space-y-4">
         <h2 className="text-base font-semibold text-gray-900 dark:text-white border-b border-gray-100 dark:border-gray-800 pb-3 flex items-center gap-2">
-          <Instagram className="w-4 h-4 text-[var(--color-gold)]" /> Social Profiles
+          <Share2 className="w-4 h-4 text-[var(--color-gold)]" /> Social Profiles
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Package, Users, Settings, LogOut, Moon, Sun, X, Tags, Globe, Home } from "lucide-react";
+import { LayoutDashboard, Package, Users, Settings, LogOut, Moon, Sun, X, Tags, Globe, Home, FileText, HelpCircle } from "lucide-react";
 import { useAuthStore } from "../../store/authStore";
 import { useEffect, useState } from "react";
 
@@ -43,6 +43,8 @@ export default function Sidebar({ isOpen, setIsOpen }) {
     { name: "Categories", href: "/categories", icon: Tags },
     { name: "Brand & Contact", href: "/content/brand", icon: Globe },
     { name: "Homepage CMS", href: "/content/home", icon: Home },
+    { name: "Pages", href: "/pages", icon: FileText },
+    { name: "FAQs", href: "/faqs", icon: HelpCircle },
     { name: "Settings", href: "/settings", icon: Settings },
   ];
 
